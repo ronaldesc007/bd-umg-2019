@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\ModelPelicula;
 use Illuminate\Http\Request;
+use DB;
+use Redirect;
+use Validator;
 
 class ControllerPelicula extends Controller
 {
@@ -35,7 +38,39 @@ class ControllerPelicula extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // validate
+        $rules = [
+            'titulo' => 'required|max:45',
+            'categoria' => 'required',
+        ];
+
+        $Input = $request->all();
+        $validator = Validator::make($Input, $rules);
+
+        // process the store
+        if ($validator->fails()) {
+            return Redirect::back()
+                ->withErrors($validator)->withInput();
+        }
+        
+         // Start transaction!
+        DB::beginTransaction();
+
+        // store
+        $new_pelicula = new ModelPelicula;
+        $new_pelicula->titulo = $request->titulo;
+        $new_pelicula->categoria = $request->categoria;
+        $new_pelicula->save();
+
+        if (! $new_pelicula) {
+            DB::rollback(); //Rollback Transaction
+            return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+        }
+        
+        DB::commit(); // Commit if no error
+
+        return Redirect::route('admin.peliculas')
+            ->withFlashInfo('Nueva Pelicula Agregada');
     }
 
     /**

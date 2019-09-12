@@ -7,5 +7,5 @@ use App\Http\Controllers\ControllerPelicula;
 Route::redirect('/', '/admin/dashboard', 301);
 Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('peliculas', [ControllerPelicula::class, 'index'])->name('peliculas');
-Route::get('peliculas/guardar', [ControllerPelicula::class, 'store'])->name('peliculas.guardar');
+Route::post('peliculas/guardar', [ControllerPelicula::class, 'store'])->name('peliculas.guardar');
 
