@@ -13,7 +13,14 @@ class SetupDiscoTables extends Migration
     {
         Schema::table('disco', function (Blueprint $table) {
             $table->unsignedBigInteger('pelicula_cod_pelicula');
-            $table->foreign('pelicula_cod_pelicula')->references('cod_pelicula')->on('pelicula')->onDelete('cascade');;
+            $table->foreign('pelicula_cod_pelicula')->references('cod_pelicula')->on('pelicula')->onDelete('cascade');
+        });
+        
+        Schema::table('reparto', function (Blueprint $table) {
+            $table->unsignedBigInteger('pelicula_cod_pelicula');
+            $table->unsignedBigInteger('actor_cod_actor');
+            $table->foreign('pelicula_cod_pelicula')->references('cod_pelicula')->on('pelicula')->onDelete('cascade');
+            $table->foreign('actor_cod_actor')->references('cod_actor')->on('actor')->onDelete('cascade');
         });
 
     }
@@ -25,6 +32,11 @@ class SetupDiscoTables extends Migration
     {
         Schema::table('disco', function (Blueprint $table) {
             $table->dropForeign('disco_pelicula_cod_pelicula_foreign');
+        });
+        
+        Schema::table('reparto', function (Blueprint $table) {
+            $table->dropForeign('reparto_pelicula_cod_pelicula_foreign');
+            $table->dropForeign('reparto_actor_cod_actor_foreign');
         });
 
     }

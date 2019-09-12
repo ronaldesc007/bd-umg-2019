@@ -15,8 +15,7 @@ class CreateRepartoTable extends Migration
     {
         Schema::create('reparto', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('pelicula_cod_pelicula')->unsigned();
-            $table->integer('actor_cod_actor')->unsigned();
+            
             $table->timestamps();
         });
     }
