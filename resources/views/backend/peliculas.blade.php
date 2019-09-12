@@ -26,6 +26,14 @@
                                 <option selected disabled>Seleccione</option>
                                 <option value="accion" {{ old('categoria') == 'accion' ? 'selected' : '' }}>Acción</option>
                                 <option value="aventura" {{ old('categoria') == 'aventura' ? 'selected' : '' }}>Aventura</option>
+                                <option value="comedia" {{ old('categoria') == 'comedia' ? 'selected' : '' }}>Comedia</option>
+                                <option value="drama" {{ old('categoria') == 'drama' ? 'selected' : '' }}>Drama</option>
+                                <option value="terror" {{ old('categoria') == 'terror' ? 'selected' : '' }}>Terror</option>
+                                <option value="musicales" {{ old('categoria') == 'musicales' ? 'selected' : '' }}>Musicales</option>
+                                <option value="ciencia_ficcion" {{ old('categoria') == 'ciencia_ficcion' ? 'selected' : '' }}>Ciencia Ficción</option>
+                                <option value="guerra" {{ old('categoria') == 'guerra' ? 'selected' : '' }}>Guerra</option>
+                                <option value="suspenso" {{ old('categoria') == 'suspenso' ? 'selected' : '' }}>Suspenso</option>
+                                <option value="infantiles" {{ old('categoria') == 'infantiles' ? 'selected' : '' }}>Infantiles</option>
                           </select>
                         </div>
                     </div>
