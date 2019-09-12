@@ -20,6 +20,46 @@
                     Peliculas
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{
+                    active_class(Route::is('admin/peliculas'))
+                }}" href="{{ route('admin.peliculas') }}">
+                    <i class="nav-icon fas fa-user-tie"></i>
+                    Actor
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{
+                    active_class(Route::is('admin/peliculas'))
+                }}" href="{{ route('admin.peliculas') }}">
+                    <i class="nav-icon fas fa-users"></i>
+                    Reparto
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{
+                    active_class(Route::is('admin/peliculas'))
+                }}" href="{{ route('admin.peliculas') }}">
+                    <i class="nav-icon fas fa-id-card-alt"></i>
+                   Cliente
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{
+                    active_class(Route::is('admin/peliculas'))
+                }}" href="{{ route('admin.peliculas') }}">
+                    <i class="nav-icon fas fa-compact-disc"></i>
+                    Discos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{
+                    active_class(Route::is('admin/peliculas'))
+                }}" href="{{ route('admin.peliculas') }}">
+                    <i class="nav-icon fas fa-film"></i>
+                    Renta
+                </a>
+            </li>
 
             @if ($logged_in_user->isAdmin())
                 <li class="nav-title">
