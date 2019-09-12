@@ -3,7 +3,7 @@
 @section('title', app_name() . ' | '. __('labels.backend.access.roles.management'))
 
 @section('content')
-<div class="card">
+<div class="card mt-2">
     <div class="card-body">
         <div class="row">
             <div class="col-sm-5">
@@ -37,7 +37,7 @@
                                         {{ $pelicula->titulo }}
                                     </td>
                                     <td>{{ $pelicula->categoria }}</td>
-                                    <td> </td>
+                                    <td>@include('backend.peliculas.includes.actions', ['cod_pelicula' => $pelicula->cod_pelicula ])</td>
                                 </tr>
                             @endforeach
                         </tbody>

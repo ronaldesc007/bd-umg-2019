@@ -57,6 +57,7 @@ class LoginController extends Controller
     {
         $request->validate([
             $this->username() => 'required|string',
+            'motorbd' => 'required|string',
             'password' => PasswordRules::login(),
             'g-recaptcha-response' => ['required_if:captcha_status,true', 'captcha'],
         ], [
