@@ -19,9 +19,6 @@ class CreateRentaTable extends Migration
             $table->dateTime('fecha_renta');
             $table->dateTime('fecha_devolucion');
             $table->decimal('valor_renta', 9, 2);
-            
-            $table->integer('cod_disco')->unsigned();
-            $table->integer('no_membresia')->unsigned();
             $table->tinyinteger('isDeleted')->default(0);
             $table->tinyinteger('isSynced')->default(0);
             $table->tinyinteger('isUpdated')->default(0);

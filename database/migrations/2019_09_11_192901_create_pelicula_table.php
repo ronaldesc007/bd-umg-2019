@@ -16,7 +16,7 @@ class CreatePeliculaTable extends Migration
         Schema::create('pelicula', function (Blueprint $table) {
             $table->bigIncrements('cod_pelicula');
             $table->string('titulo', 45);
-            $table->integer('cod_categoria')->unsigned();
+            $table->string('categoria', 45);
             $table->tinyinteger('isDeleted')->default(0);
             $table->tinyinteger('isSynced')->default(0);
             $table->tinyinteger('isUpdated')->default(0);
