@@ -56,7 +56,7 @@
                 <a class="nav-link {{
                     active_class(Route::is('admin/peliculas'))
                 }}" href="{{ route('admin.peliculas') }}">
-                    <i class="nav-icon fas fa-film"></i>
+                    <i class="nav-icon fas fa-ticket-alt"></i>
                     Renta
                 </a>
             </li>
