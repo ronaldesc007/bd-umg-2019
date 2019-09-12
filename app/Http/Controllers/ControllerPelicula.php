@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use DB;
 use Redirect;
 use Validator;
+use Illuminate\Support\Facades\Log;
 
 class ControllerPelicula extends Controller
 {
@@ -17,7 +18,9 @@ class ControllerPelicula extends Controller
      */
     public function index()
     {
-        return view('backend.peliculas');
+        $peliculas = ModelPelicula::orderBy('cod_pelicula','asc')->paginate();;
+        return view('backend.peliculas.index')->withPeliculas($peliculas);
+            
     }
 
     /**
@@ -27,7 +30,7 @@ class ControllerPelicula extends Controller
      */
     public function create()
     {
-        //
+        return view('backend.peliculas.create');
     }
 
     /**
@@ -68,7 +71,9 @@ class ControllerPelicula extends Controller
         }
         
         DB::commit(); // Commit if no error
-
+        
+        Log::info('Una pelicula ha sido agregada: '.$new_pelicula->cod_pelicula);
+        
         return Redirect::route('admin.peliculas')
             ->withFlashInfo('Nueva Pelicula Agregada');
     }

@@ -8,4 +8,5 @@ Route::redirect('/', '/admin/dashboard', 301);
 Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('peliculas', [ControllerPelicula::class, 'index'])->name('peliculas');
 Route::post('peliculas/guardar', [ControllerPelicula::class, 'store'])->name('peliculas.guardar');
+Route::get('peliculas/crear', [ControllerPelicula::class, 'create'])->name('peliculas.crear');
 
