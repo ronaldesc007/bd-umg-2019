@@ -96,6 +96,9 @@ class LoginController extends Controller
         }
 
         event(new UserLoggedIn($user));
+        
+        //Agregar el motor de base de datos seleccionado a la session
+        $request->session()->put('motorbd', $request->motorbd);
 
         if (config('access.users.single_login')) {
             auth()->logoutOtherDevices($request->password);

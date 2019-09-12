@@ -40,6 +40,21 @@
                                 </div><!--form-group-->
                             </div><!--col-->
                         </div><!--row-->
+                    
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    Sitio
+
+                                    <label>Sitio</label>
+                                    <select name="motorbd" id="motorbd" class="form-control">
+                                        <option selected disabled>Seleccione:</option>
+                                        <option value="mysql"> MySQL</option>
+                                        <option value="pgsql"> PostgreSQL</option>
+                                    </select>
+                                </div><!--form-group-->
+                            </div><!--col-->
+                        </div><!--row-->
 
                         <div class="row">
                             <div class="col">
