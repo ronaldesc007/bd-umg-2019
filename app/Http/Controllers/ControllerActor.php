@@ -61,7 +61,7 @@ class ControllerActor extends Controller
         DB::beginTransaction();
 
         // store
-        $new_actor = new ModelPelicula;
+        $new_actor = new ModelActor;
         $new_actor->nombre = $request->nombre;
         $new_actor->fecha_nacimiento = $request->fecha_nacimiento;
         $new_actor->save();

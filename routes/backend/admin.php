@@ -11,5 +11,5 @@ Route::get('peliculas', [ControllerPelicula::class, 'index'])->name('peliculas')
 Route::get('actor', [ControllerActor::class, 'index'])->name('actor');
 Route::post('peliculas/guardar', [ControllerPelicula::class, 'store'])->name('peliculas.guardar');
 Route::get('peliculas/crear', [ControllerPelicula::class, 'create'])->name('peliculas.crear');
-Route::post('actor/guardar', [ControllerPelicula::class, 'store'])->name('actor.guardar');
-Route::get('actor/crear', [ControllerPelicula::class, 'create'])->name('actor.crear');
+Route::post('actor/guardar', [ControllerActor::class, 'store'])->name('actor.guardar');
+Route::get('actor/crear', [ControllerActor::class, 'create'])->name('actor.crear');
