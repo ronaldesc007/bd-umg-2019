@@ -12,6 +12,14 @@
                     @lang('menus.backend.sidebar.dashboard')
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{
+                    active_class(Route::is('admin/peliculas'))
+                }}" href="{{ route('admin.peliculas') }}">
+                    <i class="nav-icon fas fa-film"></i>
+                    Peliculas
+                </a>
+            </li>
 
             @if ($logged_in_user->isAdmin())
                 <li class="nav-title">

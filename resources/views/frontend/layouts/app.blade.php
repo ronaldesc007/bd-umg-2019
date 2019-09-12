@@ -31,11 +31,6 @@
 
             <div class="container">
                 @include('includes.partials.messages')
-                @if (env('bd'))
-                  MYSQL DB
-                @else
-                  POSTGRESQL DB
-                @endif
                 @yield('content')
             </div><!-- container -->
         </div><!-- #app -->

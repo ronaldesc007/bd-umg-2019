@@ -44,9 +44,7 @@
                         <div class="row">
                             <div class="col">
                                 <div class="form-group">
-                                    Sitio
-
-                                    <label>Sitio</label>
+                                    <label>Base de Datos</label>
                                     <select name="motorbd" id="motorbd" class="form-control">
                                         <option selected disabled>Seleccione:</option>
                                         <option value="mysql"> MySQL</option>
