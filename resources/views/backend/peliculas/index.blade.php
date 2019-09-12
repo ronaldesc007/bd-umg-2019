@@ -8,7 +8,7 @@
         <div class="row">
             <div class="col-sm-5">
                 <h4 class="card-title mb-0">
-                    Mantenimiento
+                    Peliculas
                 </h4>
             </div><!--col-->
 

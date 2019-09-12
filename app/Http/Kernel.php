@@ -36,6 +36,9 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
+            
+            \App\Http\Middleware\MotorBD::class,
+            
             \Illuminate\Session\Middleware\AuthenticateSession::class, // Must be enabled for 'single login' to work
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
