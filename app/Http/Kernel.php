@@ -37,6 +37,7 @@ class Kernel extends HttpKernel
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
             
+            // cada ruta de navegacion ejecuta la validacion 
             \App\Http\Middleware\MotorBD::class,
             
             \Illuminate\Session\Middleware\AuthenticateSession::class, // Must be enabled for 'single login' to work

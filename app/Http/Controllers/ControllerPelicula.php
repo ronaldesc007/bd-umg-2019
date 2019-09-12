@@ -18,7 +18,7 @@ class ControllerPelicula extends Controller
      */
     public function index()
     {
-        $peliculas = ModelPelicula::orderBy('cod_pelicula','asc')->paginate();;
+        $peliculas = ModelPelicula::where('isDeleted','<>',1)->orderBy('cod_pelicula','asc')->paginate();;
         return view('backend.peliculas.index')->withPeliculas($peliculas);
             
     }
@@ -118,8 +118,18 @@ class ControllerPelicula extends Controller
      * @param  \App\ModelPelicula  $modelPelicula
      * @return \Illuminate\Http\Response
      */
-    public function destroy(ModelPelicula $modelPelicula)
+    public function destroy($cod_pelicula)
     {
-        //
+        //$this->roleRepository->deleteById($role->id);
+
+        
+        $pelicula = ModelPelicula::find($cod_pelicula);
+        $pelicula->isDeleted = 1;
+        $pelicula->save();
+        
+        
+        Log::info('La siguiente pelicula has sido eliminada: '.$pelicula->titulo);
+
+        return redirect()->route('admin.peliculas')->withFlashSuccess('La pelicula ha sido eliminada.');
     }
 }
