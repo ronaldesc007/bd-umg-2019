@@ -76,7 +76,7 @@ class ControllerActor extends Controller
         Log::info('Un actor ha sido agregado: '.$new_actor->cod_actor);
         
         return Redirect::route('admin.actor')
-            ->withFlashInfo('Nueva Actor Agregado');
+            ->withFlashInfo('Nuevo Actor Agregado');
     }
 
     /**
