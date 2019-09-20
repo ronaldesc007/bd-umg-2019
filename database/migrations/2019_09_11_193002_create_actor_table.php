@@ -16,7 +16,7 @@ class CreateActorTable extends Migration
         Schema::create('actor', function (Blueprint $table) {
             $table->bigIncrements('cod_actor');
             $table->string('nombre', 50);
-            $table->dateTime('fecha_nacimiento');
+            $table->date('fecha_nacimiento');
             $table->tinyinteger('isDeleted')->default(0);
             $table->tinyinteger('isSynced')->default(0);
             $table->tinyinteger('isUpdated')->default(0);
