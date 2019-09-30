@@ -95,9 +95,12 @@ class ControllerPelicula extends Controller
      * @param  \App\ModelPelicula  $modelPelicula
      * @return \Illuminate\Http\Response
      */
-    public function edit(ModelPelicula $modelPelicula)
+    public function edit($codPelicula)
     {
-        //
+        $pelicula = ModelPelicula::findOrFail($codPelicula);
+   
+        return view('backend.peliculas.edit')
+            ->withPelicula($pelicula);
     }
 
     /**
@@ -107,9 +110,46 @@ class ControllerPelicula extends Controller
      * @param  \App\ModelPelicula  $modelPelicula
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, ModelPelicula $modelPelicula)
+    public function update(Request $request, $codPelicula)
     {
-        //
+        
+        // validate
+        $rules = [
+            'titulo' => 'required|max:45',
+            'categoria' => 'required',
+        ];
+
+        $Input = $request->all();
+        $validator = Validator::make($Input, $rules);
+
+        // process the store
+        if ($validator->fails()) {
+            return Redirect::back()
+                ->withErrors($validator)->withInput();
+        }
+        
+         // Start transaction!
+        DB::beginTransaction();
+
+        // store
+        $pelicula = ModelPelicula::findOrFail($codPelicula);
+        $pelicula->titulo = $request->titulo;
+        $pelicula->categoria = $request->categoria;
+        $pelicula->isUpdated = 1;
+        $pelicula->save();
+
+        if (! $pelicula) {
+            DB::rollback(); //Rollback Transaction
+            return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+        }
+        
+        DB::commit(); // Commit if no error
+        
+        Log::info('La pelicula Cod#'.$pelicula->cod_pelicula.' ha sido actualizada.');
+        
+        return Redirect::route('admin.peliculas')
+            ->withFlashInfo('La pelicula ha sido actualizada.');
+        
     }
 
     /**
