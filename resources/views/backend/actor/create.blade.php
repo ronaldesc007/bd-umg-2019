@@ -22,7 +22,7 @@
                     <div class="form-row">
                         <div class="form-group col-md-12">
                             <label for="fecha_nacimiento">Fecha de nacimiento</label>
-                            <input type="text" name="fecha_nacimiento" id="fecha_nacimiento" class="form-control" placeholder="Ingrese el fecha de nacimiento" value="{{old('fecha_nacimiento')}}">
+                            <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" class="form-control" placeholder="Ingrese el fecha de nacimiento" value="{{old('fecha_nacimiento')}}">
                         </div>
                     </div>
             
