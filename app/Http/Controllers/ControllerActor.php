@@ -19,8 +19,8 @@ class ControllerActor extends Controller
     public function index()
     {
         //
-        $actor = ModelActor::orderBy('cod_actor','asc')->paginate();;
-        return view('backend.actor.index')->withActor($actor);
+        $actores = ModelActor::where('isDeleted','<>',1)->orderBy('cod_actor','asc')->paginate();;
+        return view('backend.actores.index')->withActores($actores);
     }
 
     /**
@@ -31,7 +31,7 @@ class ControllerActor extends Controller
     public function create()
     {
         //
-        return view('backend.actor.create');
+        return view('backend.actores.create');
     }
 
     /**
@@ -119,8 +119,18 @@ class ControllerActor extends Controller
      * @param  \App\ModelActor  $modelActor
      * @return \Illuminate\Http\Response
      */
-    public function destroy(ModelActor $modelActor)
+    public function destroy($cod_actor)
     {
-        //
+        //$this->roleRepository->deleteById($role->id);
+
+        
+        $actor = ModelActor::find($cod_actor);
+        $actor->isDeleted = 1;
+        $actor->save();
+        
+        
+        Log::info('El siguiente actor has sido eliminada: '.$actor->nombre);
+
+        return redirect()->route('admin.actor')->withFlashSuccess('El actor ha sido eliminado.');
     }
 }

@@ -13,7 +13,7 @@
             </div><!--col-->
 
             <div class="col-sm-7 pull-right">
-                @include('backend.actor.botones')
+                @include('backend.actores.botones')
             </div><!--col-->
         </div><!--row-->
 
@@ -30,14 +30,14 @@
                         </tr>
                         </thead>
                         <tbody>
-                            @foreach($actor as $actor)
+                            @foreach($actores as $actor)
                                 <tr>
                                     <td>{{ $actor->cod_actor }}</td>
                                     <td>
                                         {{ $actor->nombre }}
                                     </td>
                                     <td>{{ $actor->fecha_nacimiento }}</td>
-                                    <td>@include('backend.actor.includes.actions', ['cod_actor' => $actor->cod_actor ])</td>
+                                    <td>@include('backend.actores.includes.actions', ['cod_actor' => $actor->cod_actor ])</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -48,13 +48,13 @@
         <div class="row">
             <div class="col-7">
                 <div class="float-left">
-                    {!! $actor->total() !!} Registros
+                    {!! $actores->total() !!} Registros
                 </div>
             </div><!--col-->
 
             <div class="col-5">
                 <div class="float-right">
-                    {!! $actor->render() !!}
+                    {!! $actores->render() !!}
                 </div>
             </div><!--col-->
         </div><!--row-->

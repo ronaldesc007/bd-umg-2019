@@ -22,8 +22,8 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link {{
-                    active_class(Route::is('admin/actor'))
-                }}" href="{{ route('admin.actor') }}">
+                    active_class(Route::is('admin/actores'))
+                }}" href="{{ route('admin.actores') }}">
                     <i class="nav-icon fas fa-user-tie"></i>
                     Actor
                 </a>

@@ -12,7 +12,7 @@ use App\Http\Controllers\ControllerActor;
 Route::redirect('/', '/admin/dashboard', 301);
 Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('peliculas', [ControllerPelicula::class, 'index'])->name('peliculas');
-Route::get('actor', [ControllerActor::class, 'index'])->name('actor');
+Route::get('actor', [ControllerActor::class, 'index'])->name('actores');
 
 Route::post('peliculas/guardar', [ControllerPelicula::class, 'store'])->name('peliculas.guardar');
 Route::get('peliculas/crear', [ControllerPelicula::class, 'create'])->name('peliculas.crear');
@@ -20,11 +20,11 @@ Route::delete('peliculas/{cod_pelicula}', [ControllerPelicula::class, 'destroy']
 Route::get('peliculas/{cod_pelicula}', [ControllerPelicula::class, 'show'])->name('peliculas.ver');
 Route::get('peliculas/{cod_pelicula}/editar', [ControllerPelicula::class, 'edit'])->name('peliculas.editar');
 
-Route::post('actor/guardar', [ControllerActor::class, 'store'])->name('actor.guardar');
-Route::get('actor/crear', [ControllerActor::class, 'create'])->name('actor.crear');
-Route::delete('actor/{cod_actor}', [ControllerPelicula::class, 'destroy'])->name('actor.eliminar');
-Route::get('actor/{cod_actor}', [ControllerPelicula::class, 'show'])->name('actor.ver');
-Route::get('actor/{cod_actor}/editar', [ControllerPelicula::class, 'edit'])->name('actor.editar');
+Route::post('actores/guardar', [ControllerActor::class, 'store'])->name('actores.guardar');
+Route::get('actores/crear', [ControllerActor::class, 'create'])->name('actores.crear');
+Route::delete('actores/{cod_actor}', [ControllerPelicula::class, 'destroy'])->name('actores.eliminar');
+Route::get('actores/{cod_actor}', [ControllerPelicula::class, 'show'])->name('actores.ver');
+Route::get('actores/{cod_actor}/editar', [ControllerPelicula::class, 'edit'])->name('actores.editar');
 
 
 

@@ -11,7 +11,7 @@
                 </div><!--card-header-->
                 <div class="card-body">
                     
-                    <form method="post" action="{{ route ('admin.actor.guardar')}}">
+                    <form method="post" action="{{ route ('admin.actores.guardar')}}">
                     @csrf                                            
                     <div class="form-row">
                         <div class="form-group col-md-12">

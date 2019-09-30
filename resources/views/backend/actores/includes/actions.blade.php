@@ -1,10 +1,10 @@
 
     <div class="btn-group" role="group" aria-label="@lang('labels.backend.access.users.user_actions')">
-        <a href="{{ route('admin.actor.ver', $cod_actor) }}" data-toggle="tooltip" data-placement="top" title="@lang('buttons.general.crud.view')" class="btn btn-info">
+        <a href="{{ route('admin.actores.ver', $cod_actor) }}" data-toggle="tooltip" data-placement="top" title="@lang('buttons.general.crud.view')" class="btn btn-info">
             <i class="fas fa-eye"></i>
         </a>
 
-        <a href="{{ route('admin.actor.editar', $cod_actor) }}" data-toggle="tooltip" data-placement="top" title="@lang('buttons.general.crud.edit')" class="btn btn-primary">
+        <a href="{{ route('admin.actores.editar', $cod_actor) }}" data-toggle="tooltip" data-placement="top" title="@lang('buttons.general.crud.edit')" class="btn btn-primary">
             <i class="fas fa-edit"></i>
         </a>
 
@@ -13,7 +13,7 @@
                 Opciones
             </button>
             <div class="dropdown-menu" aria-labelledby="userActions">
-                    <a href="{{ route('admin.actor.eliminar', $cod_actor) }}"
+                    <a href="{{ route('admin.actores.eliminar', $cod_actor) }}"
                        data-method="delete"
                        data-trans-button-cancel="@lang('buttons.general.cancel')"
                        data-trans-button-confirm="@lang('buttons.general.crud.delete')"
