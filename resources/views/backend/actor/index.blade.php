@@ -37,7 +37,7 @@
                                         {{ $actor->nombre }}
                                     </td>
                                     <td>{{ $actor->fecha_nacimiento }}</td>
-                                    <td> </td>
+                                    <td>@include('backend.actor.includes.actions', ['cod_actor' => $actor->cod_actor ])</td>
                                 </tr>
                             @endforeach
                         </tbody>
