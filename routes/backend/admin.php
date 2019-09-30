@@ -23,9 +23,10 @@ Route::post('peliculas/{cod_pelicula}', [ControllerPelicula::class, 'update'])->
 
 Route::post('actores/guardar', [ControllerActor::class, 'store'])->name('actores.guardar');
 Route::get('actores/crear', [ControllerActor::class, 'create'])->name('actores.crear');
-Route::delete('actores/{cod_actor}', [ControllerPelicula::class, 'destroy'])->name('actores.eliminar');
-Route::get('actores/{cod_actor}', [ControllerPelicula::class, 'show'])->name('actores.ver');
-Route::get('actores/{cod_actor}/editar', [ControllerPelicula::class, 'edit'])->name('actores.editar');
+Route::delete('actores/{cod_actor}', [ControllerActor::class, 'destroy'])->name('actores.eliminar');
+Route::get('actores/{cod_actor}', [ControllerActor::class, 'show'])->name('actores.ver');
+Route::get('actores/{cod_actor}/editar', [ControllerActor::class, 'edit'])->name('actores.editar');
+Route::post('actores/{cod_actor}', [ControllerActor::class, 'update'])->name('actores.update');
 
 
 

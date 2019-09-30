@@ -75,7 +75,7 @@ class ControllerActor extends Controller
         
         Log::info('Un actor ha sido agregado: '.$new_actor->cod_actor);
         
-        return Redirect::route('admin.actor')
+        return Redirect::route('admin.actores')
             ->withFlashInfo('Nuevo Actor Agregado');
     }
 
@@ -133,7 +133,7 @@ class ControllerActor extends Controller
         DB::beginTransaction();
 
         // store
-        $actor = ModelActor::findOrFail($cod_actor);
+        $actor = ModelActor::findOrFail($codActor);
         $actor->nombre = $request->nombre;
         $actor->fecha_nacimiento = $request->fecha_nacimiento;
         $actor->isUpdated = 1;
@@ -170,6 +170,6 @@ class ControllerActor extends Controller
         
         Log::info('El siguiente actor has sido eliminada: '.$actor->nombre);
 
-        return redirect()->route('admin.actor')->withFlashSuccess('El actor ha sido eliminado.');
+        return redirect()->route('admin.actores')->withFlashSuccess('El actor ha sido eliminado.');
     }
 }
