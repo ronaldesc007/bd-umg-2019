@@ -96,9 +96,13 @@ class ControllerActor extends Controller
      * @param  \App\ModelActor  $modelActor
      * @return \Illuminate\Http\Response
      */
-    public function edit(ModelActor $modelActor)
+    public function edit($codActor)
     {
         //
+        $actor = ModelActor::findOrFail($codActor);
+   
+        return view('backend.actores.edit')
+            ->withActor($actor);
     }
 
     /**
@@ -108,9 +112,44 @@ class ControllerActor extends Controller
      * @param  \App\ModelActor  $modelActor
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, ModelActor $modelActor)
+    public function update(Request $request, $codActor)
     {
-        //
+         // validate
+        $rules = [
+            'nombre' => 'required|max:45',
+            'fecha_nacimiento' => 'required',
+        ];
+
+        $Input = $request->all();
+        $validator = Validator::make($Input, $rules);
+
+        // process the store
+        if ($validator->fails()) {
+            return Redirect::back()
+                ->withErrors($validator)->withInput();
+        }
+        
+         // Start transaction!
+        DB::beginTransaction();
+
+        // store
+        $actor = ModelActor::findOrFail($cod_actor);
+        $actor->nombre = $request->nombre;
+        $actor->fecha_nacimiento = $request->fecha_nacimiento;
+        $actor->isUpdated = 1;
+        $actor->save();
+
+        if (! $actor) {
+            DB::rollback(); //Rollback Transaction
+            return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+        }
+        
+        DB::commit(); // Commit if no error
+        
+        Log::info('El actor Cod#'.$actor->cod_actor.' ha sido actualizado.');
+        
+        return Redirect::route('admin.actores')
+            ->withFlashInfo('El actor ha sido actualizado.');
     }
 
     /**

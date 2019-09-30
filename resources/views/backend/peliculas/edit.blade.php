@@ -7,7 +7,7 @@
         <div class="col">
             <div class="card mt-2">
                 <div class="card-header">
-                    <strong>PELICULAS</strong>
+                    <strong>Pelicula</strong>
                 </div><!--card-header-->
                 <div class="card-body">
                     
@@ -63,7 +63,6 @@
                         <button type="submit" class="btn btn-primary btn-block btn-flat btn-lg">Guardar</button>
                     </div>
         </div>
-        
         
       </form>
                     
