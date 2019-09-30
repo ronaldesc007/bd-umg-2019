@@ -24,16 +24,16 @@
                             <label for="categoria">Categoria:</label>
                             <select name="categoria" id="categoria" class="form-control">
                                 <option selected disabled>Seleccione</option>
-                                <option value="Accion" {{ old('categoria') == 'accion' ? 'selected' : '' }}>Acción</option>
-                                <option value="Aventura" {{ old('categoria') == 'aventura' ? 'selected' : '' }}>Aventura</option>
-                                <option value="Comedia" {{ old('categoria') == 'comedia' ? 'selected' : '' }}>Comedia</option>
-                                <option value="Drama" {{ old('categoria') == 'drama' ? 'selected' : '' }}>Drama</option>
-                                <option value="Terror" {{ old('categoria') == 'terror' ? 'selected' : '' }}>Terror</option>
-                                <option value="Musicales" {{ old('categoria') == 'musicales' ? 'selected' : '' }}>Musicales</option>
+                                <option value="Acción" {{ old('categoria') == 'Acción' ? 'selected' : '' }}>Acción</option>
+                                <option value="Aventura" {{ old('categoria') == 'Aventura' ? 'selected' : '' }}>Aventura</option>
+                                <option value="Comedia" {{ old('categoria') == 'Comedia' ? 'selected' : '' }}>Comedia</option>
+                                <option value="Drama" {{ old('categoria') == 'Drama' ? 'selected' : '' }}>Drama</option>
+                                <option value="Terror" {{ old('categoria') == 'Terror' ? 'selected' : '' }}>Terror</option>
+                                <option value="Musicales" {{ old('categoria') == 'Musicales' ? 'selected' : '' }}>Musicales</option>
                                 <option value="SciFi" {{ old('categoria') == 'SciFi' ? 'selected' : '' }}>SciFi</option>
-                                <option value="guerra" {{ old('categoria') == 'guerra' ? 'selected' : '' }}>Guerra</option>
-                                <option value="suspenso" {{ old('categoria') == 'suspenso' ? 'selected' : '' }}>Suspenso</option>
-                                <option value="infantiles" {{ old('categoria') == 'infantiles' ? 'selected' : '' }}>Infantiles</option>
+                                <option value="Guerra" {{ old('categoria') == 'Guerra' ? 'selected' : '' }}>Guerra</option>
+                                <option value="Suspenso" {{ old('categoria') == 'Suspenso' ? 'selected' : '' }}>Suspenso</option>
+                                <option value="Infantiles" {{ old('categoria') == 'Infantiles' ? 'selected' : '' }}>Infantiles</option>
                           </select>
                         </div>
                     </div>
