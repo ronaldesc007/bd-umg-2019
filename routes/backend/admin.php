@@ -16,13 +16,17 @@ Route::get('actor', [ControllerActor::class, 'index'])->name('actor');
 
 Route::post('peliculas/guardar', [ControllerPelicula::class, 'store'])->name('peliculas.guardar');
 Route::get('peliculas/crear', [ControllerPelicula::class, 'create'])->name('peliculas.crear');
-
-Route::post('actor/guardar', [ControllerActor::class, 'store'])->name('actor.guardar');
-Route::get('actor/crear', [ControllerActor::class, 'create'])->name('actor.crear');
-
 Route::delete('peliculas/{cod_pelicula}', [ControllerPelicula::class, 'destroy'])->name('peliculas.eliminar');
 Route::get('peliculas/{cod_pelicula}', [ControllerPelicula::class, 'show'])->name('peliculas.ver');
 Route::get('peliculas/{cod_pelicula}/editar', [ControllerPelicula::class, 'edit'])->name('peliculas.editar');
+
+Route::post('actor/guardar', [ControllerActor::class, 'store'])->name('actor.guardar');
+Route::get('actor/crear', [ControllerActor::class, 'create'])->name('actor.crear');
+Route::delete('actor/{cod_actor}', [ControllerPelicula::class, 'destroy'])->name('actor.eliminar');
+Route::get('actor/{cod_actor}', [ControllerPelicula::class, 'show'])->name('actor.ver');
+Route::get('actor/{cod_actor}/editar', [ControllerPelicula::class, 'edit'])->name('actor.editar');
+
+
 
 Route::get('sincronizacion', [ControllerSincro::class, 'index'])->name('sincronizacion');
 
