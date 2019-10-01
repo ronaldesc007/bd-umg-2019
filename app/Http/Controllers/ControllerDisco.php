@@ -19,7 +19,13 @@ class ControllerDisco extends Controller
     public function index()
     {
         //
-        $discos = ModelDisco::where('isDeleted','<>',1)->orderBy('cod_disco','asc')->paginate();;
+        //$discos = ModelDisco::where('isDeleted','<>',1)->orderBy('cod_disco','asc')->paginate();;
+        //return view('backend.discos.index')->withDiscos($discos);
+        
+        $discos = ModelDisco::select('disco.*', 'pelicula.titulo')
+            ->join('pelicula', 'pelicula_cod_pelicula', '=', 'pelicula.cod_pelicula')
+            ->where('disco.isDeleted','<>',1)
+            ->orderBy('cod_disco','asc')->paginate();;
         return view('backend.discos.index')->withDiscos($discos);
     }
 

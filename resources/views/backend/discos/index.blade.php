@@ -26,6 +26,7 @@
                             <th>CODIGO</th>
                             <th>NUMERO DE COPIAS</th>
                             <th>CODIGO PELICULA</th>
+                            <th>TITULO PELICULA</th>
                             <th>FORMATO</th>
                             <th></th>
                         </tr>
@@ -38,6 +39,7 @@
                                         {{ $disco->no_copias }}
                                     </td>
                                     <td>{{ $disco->pelicula_cod_pelicula }}</td>
+                                    <td>{{ $disco->titulo }}</td>
                                     <td>{{ $disco->formato }}</td>
                                     <td>@include('backend.discos.includes.actions', ['cod_disco' => $disco->cod_disco ])</td>
                                 </tr>
