@@ -6,6 +6,7 @@ use App\ModelSincro;
 use App\ModelPelicula;
 use App\ModelActor;
 use App\ModelCliente;
+use App\ModelDisco;
 use Illuminate\Http\Request;
 use Log;
 use Session;
@@ -34,6 +35,7 @@ class ControllerSincro extends Controller
         $this->syncPeliculas($motorbd,$motorbd2); 
         $this->syncActores($motorbd,$motorbd2); 
         $this->syncClientes($motorbd,$motorbd2); 
+        $this->syncDiscos($motorbd,$motorbd2); 
         
         DB::commit(); // Commit if no error
         
@@ -725,6 +727,238 @@ class ControllerSincro extends Controller
         return true;
         
     }
+   
+     /**
+     * Actualizar los discos.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    private function syncDiscos($motorbd,$motorbd2)
+    {
+        
+        Log::alert('INICIANDO PROCESO DE SINCRONIZACION DE '.$motorbd.' A '.$motorbd2);
+        
+        $discos_bd1 = DB::connection($motorbd)->table('disco')->where('isDeleted','<>',1)->get();
+        Log::alert('Discos Activos en BD1 '.$motorbd.': '.$discos_bd1->count());
+        
+        $discos_bd2 = DB::connection($motorbd2)->table('disco')->where('isDeleted','<>',1)->get();
+        Log::alert('Discos Activos en BD2 '.$motorbd2.': '.$discos_bd2->count());
+        
+        // Discos Nuevos
+        $discos_nuevos = ModelDisco::where('isSynced','=',0)->where('isDeleted','=',0)->where('isUpdated','=',0)->get('cod_disco');
+        Log::alert('Sincronizando Discos Nuevos: '.$discos_nuevos->count());
+        
+        foreach($discos_nuevos as $dnuevo) {
+            
+            if ($discos_bd2->contains('cod_disco', '=', $dnuevo->cod_disco)) {
+                
+                Log::alert('El siguiente codigo de disco ya existe en BD2 : '.$dnuevo->cod_disco .'');
+                
+                // buscando modelo en bd2
+                $discobd2 = ModelDisco::on($motorbd2)->find($dnuevo->cod_disco);
+                
+                // buscando modelo en bd1
+                $discobd1 = ModelDisco::find($dnuevo->cod_disco);
+                
+                // comparando modelo bd1 vs modelo bd2
+                if ($discobd2->created_at >= $discobd1->created_at ) {
+                        
+                    Log::alert('El registo en BD1 es mas antiguo, actualizando BD2 : '.$dnuevo->cod_disco .'');
+                    
+                    // el registro en bd1 es mas antiguo, actualizando el registro en bd2 con los datos de bd1
+                    $discobd2->no_copias = $discobd1->titulo;
+                    $discobd2->formato = $discobd1->formato;
+                    $discobd2->pelicula_cod_pelicula = $discobd1->pelicula_cod_pelicula;
+                    
+                    //marcando ambos modelos como sincronizados
+                    $discobd1->isSynced = 1;
+                    $discobd2->isSynced = 1;
+
+                    // guardando los cambios
+                    $discobd1->save();
+                    $discobd2->save();
+                    
+                    if (!$discobd1) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                    if (!$discobd2) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                }
+                else {
+                    
+                    Log::alert('El registo en BD2 es mas antiguo, actualizando BD1 : '.$dnuevo->cod_disco .'');
+                    // el registro en bd2 es mas antiguo, actualizando el registro en bd2 con los datos de bd1
+                    $discobd1->no_copias = $discobd2->no_copias;
+                    $discobd1->formato = $discobd2->formato;
+                    $discobd1->pelicula_cod_pelicula = $discobd2->pelicula_cod_pelicula;
+                    
+                    //marcando ambos modelos como sincronizados
+                    $discobd1->isSynced = 1;
+                    $discobd2->isSynced = 1;
+
+                    // guardando los cambios
+                    $discobd1->save();
+                    $discobd2->save();
+                    
+                    if (!$discobd1) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                    if (!$discobd2) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                }
+                    
+            } else {
+                Log::alert('El disco no existe, se agrega : '.$dnuevo->cod_disco);
+                
+                // buscando la el modelo existente
+                $discobd1 = ModelDisco::find($dnuevo->cod_disco);
+                // creando una copia del modelo existente
+                $discobd2 = $discobd1->replicate();
+                // asignando el ID del modelo en bd2
+                $discobd2->cod_disco = $dnuevo->cod_disco;
+                // cambiando la conexion de bd
+                $discobd2->setConnection($motorbd2);
+                
+                //marcando ambos modelos como sincronizados
+                $discobd1->isSynced = 1;
+                $discobd2->isSynced = 1;
+                
+                $discobd1->save();
+                $discobd2->save();
+                
+                if (!$discobd2) {
+                    DB::rollback(); //Rollback Transaction
+                    return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                }
+                
+            }           
+            
+        } 
+        
+        // actualizando secuencia de Postgresql
+        if($motorbd=='mysql') {
+            $max = DB::table('disco')->max('cod_disco') + 1; 
+            DB::connection($motorbd2)->statement("ALTER SEQUENCE disco_cod_disco_seq RESTART WITH $max");
+        } 
+                
+        
+        // Discos Actualizadas
+        $discos_editados = ModelDisco::where('isUpdated','=',1)->where('isSynced','=',0)->where('isDeleted','=',0)->get('cod_disco');
+        Log::alert('Sincronizando Discos Editados: '.$discos_editados->count());
+        
+        foreach($discos_editados as $deditado) {
+            
+            if ($discos_bd2->contains('cod_disco', '=', $deditado->cod_disco)) {
+                
+                Log::alert('El siguiente codigo de disco ya existe en BD2 : '.$deditado->cod_disco .'');
+                
+                // buscando modelo en bd2
+                $discobd2 = ModelDisco::on($motorbd2)->find($deditado->cod_disco);
+                
+                // buscando modelo en bd1
+                $discobd1 = ModelDisco::find($deditado->cod_disco);
+                
+                // comparando modelo bd1 vs modelo bd2
+                if ($discobd2->updated_at <= $discobd1->updated_at ) {
+                        
+                    Log::alert('El registo en BD1 es mas reciente, actualizando BD2 : '.$deditado->cod_disco .'');
+                    
+                    // el registro en bd1 es mas reciente, actualizando el registro en bd2 con los datos de bd1
+                    $discobd2->no_copias = $discobd1->no_copias;
+                    $discobd2->formato = $discobd1->formato;
+                    $discobd2->pelicula_cod_pelicula = $discobd1->pelicula_cod_pelicula;
+                    
+                    //marcando ambos modelos como sincronizados
+                    $discobd1->isUpdated = 0;
+                    $discobd1->isSynced = 1;
+                    $discobd2->isUpdated = 0;
+                    $discobd2->isSynced = 1;
+                    
+
+                    // guardando los cambios
+                    $discobd1->save();
+                    $discobd2->save();
+                    
+                    if (!$discobd1) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                    if (!$discobd2) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                }
+                else {
+                    
+                    Log::alert('El registo en BD2 es mas reciente, actualizando BD1 : '.$dnuevo->cod_disco .'');
+                    // el registro en bd2 es mas reciente, actualizando el registro en bd2 con los datos de bd1
+                    $discobd1->no_copias = $discobd2->no_copias;
+                    $discobd1->formato = $discobd2->formato;
+                    $discobd1->pelicula_cod_pelicula = $discobd2->pelicula_cod_pelicula;
+                    
+                    //marcando ambos modelos como sincronizados
+                    $discobd1->isUpdated = 0;
+                    $discobd1->isSynced = 1;
+                    $discobd2->isUpdated = 0;
+                    $discobd2->isSynced = 1;
+                    
+                    // guardando los cambios
+                    $discobd1->save();
+                    $discobd2->save();
+                    
+                    if (!$discobd1) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                    if (!$discobd2) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                }
+                    
+            }
+            
+            
+        } 
+        
+        // Discos Eliminados
+        $discos_eliminados = ModelDisco::where('isDeleted','=',1)->get();
+        Log::alert('Sincronizando Discos Eliminados: '.$discos_eliminados->count());
+        
+        foreach($discos_eliminados as $ddel) {
+            
+            if ($discos_bd2->contains('cod_disco', '=', $ddel->cod_disco)) {
+                Log::alert('Borrando Disco de ambas BD: '.$ddel->cod_disco);
+                DB::connection($motorbd2)->table('disco')->where('cod_disco','=',$ddel->cod_disco)->delete(); 
+                DB::connection($motorbd)->table('disco')->where('cod_disco','=',$ddel->cod_disco)->delete(); 
+            } else {
+                Log::alert('Borrando solo de BD1: '.$ddel->cod_disco);
+                DB::connection($motorbd)->table('disco')->where('cod_disco','=',$ddel->cod_disco)->delete(); 
+            }        
+            
+        }  
+        
+        Log::alert('Sincronizacion de Discos Completa: '.$discos_eliminados->count());
+        
+        return true;
+        
+    }
+    
+    
     
     public function create()
     {

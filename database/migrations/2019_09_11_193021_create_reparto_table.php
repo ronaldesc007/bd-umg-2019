@@ -14,8 +14,10 @@ class CreateRepartoTable extends Migration
     public function up()
     {
         Schema::create('reparto', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            
+            $table->bigIncrements('cod_reparto');
+            $table->tinyinteger('isDeleted')->default(0);
+            $table->tinyinteger('isSynced')->default(0);
+            $table->tinyinteger('isUpdated')->default(0);
             $table->timestamps();
         });
     }
