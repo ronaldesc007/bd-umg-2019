@@ -16,7 +16,7 @@ class CreateDiscoTable extends Migration
         Schema::create('disco', function (Blueprint $table) {
             $table->bigIncrements('cod_disco');
             $table->integer('no_copias')->unsigned();
-            $table->integer('cod_pelicula')->unsigned();
+            //$table->integer('cod_pelicula')->unsigned();
             $table->string('formato', 45);
             //$table->integer('pelicula_cod_pelicula')->unsigned();
             $table->tinyinteger('isDeleted')->default(0);
