@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\ModelDisco;
 use Illuminate\Http\Request;
+use DB;
+use Redirect;
+use Validator;
+use Illuminate\Support\Facades\Log;
 
 class ControllerDisco extends Controller
 {
@@ -15,6 +19,8 @@ class ControllerDisco extends Controller
     public function index()
     {
         //
+        $discos = ModelDisco::where('isDeleted','<>',1)->orderBy('cod_disco','asc')->paginate();;
+        return view('backend.discos.index')->withDiscos($discos);
     }
 
     /**
@@ -25,6 +31,7 @@ class ControllerDisco extends Controller
     public function create()
     {
         //
+        return view('backend.discos.create');
     }
 
     /**
@@ -35,7 +42,43 @@ class ControllerDisco extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // validate
+        $rules = [
+            'no_copias' => 'required|max:45',
+            'pelicula_cod_pelicula' => 'required',
+            'formato' => 'required',
+        ];
+
+        $Input = $request->all();
+        $validator = Validator::make($Input, $rules);
+
+        // process the store
+        if ($validator->fails()) {
+            return Redirect::back()
+                ->withErrors($validator)->withInput();
+        }
+        
+         // Start transaction!
+        DB::beginTransaction();
+
+        // store
+        $new_disco = new ModelDisco;
+        $new_disco->no_copias = $request->no_copias;
+        $new_disco->pelicula_cod_pelicula = $request->pelicula_cod_pelicula;
+        $new_disco->formato = $request->formato;
+        $new_disco->save();
+
+        if (! $new_disco) {
+            DB::rollback(); //Rollback Transaction
+            return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+        }
+        
+        DB::commit(); // Commit if no error
+        
+        Log::info('Disco(s) ha sido agregado(s): '.$new_disco->cod_disco);
+        
+        return Redirect::route('admin.discos')
+            ->withFlashInfo('Nuevo(s) Disco(s) Agregado(s)');
     }
 
     /**
@@ -55,9 +98,13 @@ class ControllerDisco extends Controller
      * @param  \App\ModelDisco  $modelDisco
      * @return \Illuminate\Http\Response
      */
-    public function edit(ModelDisco $modelDisco)
+    public function edit( $codDisco)
     {
         //
+        $disco = ModelDisco::findOrFail($codDisco);
+   
+        return view('backend.discos.edit')
+            ->withDisco($disco);
     }
 
     /**
@@ -67,9 +114,46 @@ class ControllerDisco extends Controller
      * @param  \App\ModelDisco  $modelDisco
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, ModelDisco $modelDisco)
+    public function update(Request $request, $codDisco)
     {
-        //
+        // validate
+        $rules = [
+            'no_copias' => 'required|max:45',
+            'pelicula_cod_pelicula' => 'required',
+            'formato' => 'required',
+        ];
+
+        $Input = $request->all();
+        $validator = Validator::make($Input, $rules);
+
+        // process the store
+        if ($validator->fails()) {
+            return Redirect::back()
+                ->withErrors($validator)->withInput();
+        }
+        
+         // Start transaction!
+        DB::beginTransaction();
+
+        // store
+        $disco = ModelDisco::findOrFail($codDisco);
+        $disco->no_copias = $request->no_copias;
+        $disco->pelicula_cod_pelicula = $request->pelicula_cod_pelicula;
+        $disco->formato = $request->formato;
+        $disco->isUpdated = 1;
+        $disco->save();
+
+        if (! $disco) {
+            DB::rollback(); //Rollback Transaction
+            return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+        }
+        
+        DB::commit(); // Commit if no error
+        
+        Log::info('El disco Cod#'.$disco->cod_disco.' ha sido actualizado.');
+        
+        return Redirect::route('admin.discos')
+            ->withFlashInfo('Lo(s) disco(s) ha sido actualizado(s).');
     }
 
     /**
@@ -78,8 +162,19 @@ class ControllerDisco extends Controller
      * @param  \App\ModelDisco  $modelDisco
      * @return \Illuminate\Http\Response
      */
-    public function destroy(ModelDisco $modelDisco)
+    public function destroy ( $cod_disco)
     {
-        //
+        //$this->roleRepository->deleteById($role->id);
+
+        
+        $disco = ModelDisco::find($cod_disco);
+        $disco->isDeleted = 1;
+        $disco->save();
+        
+        
+        Log::info('El siguiente disco has sido eliminado: '.$disco->titulo);
+
+        return redirect()->route('admin.discos')->withFlashSuccess('El disco ha sido eliminada.');
+        
     }
 }

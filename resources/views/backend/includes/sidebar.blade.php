@@ -46,16 +46,16 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link {{
-                    active_class(Route::is('admin/peliculas'))
-                }}" href="{{ route('admin.peliculas') }}">
+                    active_class(Route::is('admin/discos'))
+                }}" href="{{ route('admin.discos') }}">
                     <i class="nav-icon fas fa-compact-disc"></i>
                     Discos
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {{
-                    active_class(Route::is('admin/peliculas'))
-                }}" href="{{ route('admin.peliculas') }}">
+                    active_class(Route::is('admin/rentas'))
+                }}" href="{{ route('admin.rentas') }}">
                     <i class="nav-icon fas fa-ticket-alt"></i>
                     Renta
                 </a>

@@ -4,6 +4,8 @@ use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\ControllerPelicula;
 use App\Http\Controllers\ControllerActor;
 use App\Http\Controllers\ControllerCliente;
+use App\Http\Controllers\ControllerDisco;
+use App\Http\Controllers\ControllerRenta;
 
 use App\Http\Controllers\ControllerSincro;
 
@@ -16,6 +18,8 @@ Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard'
 Route::get('peliculas', [ControllerPelicula::class, 'index'])->name('peliculas');
 Route::get('actores', [ControllerActor::class, 'index'])->name('actores');
 Route::get('clientes', [ControllerCliente::class, 'index'])->name('clientes');
+Route::get('discos', [ControllerDisco::class, 'index'])->name('discos');
+Route::get('rentas', [ControllerRenta::class, 'index'])->name('rentas');
 
 Route::post('peliculas/guardar', [ControllerPelicula::class, 'store'])->name('peliculas.guardar');
 Route::get('peliculas/crear', [ControllerPelicula::class, 'create'])->name('peliculas.crear');
@@ -38,6 +42,19 @@ Route::get('clientes/{no_membresia}', [ControllerCliente::class, 'show'])->name(
 Route::get('clientes/{no_membresia}/editar', [ControllerCliente::class, 'edit'])->name('clientes.editar');
 Route::post('clientes/{no_membresia}', [ControllerCliente::class, 'update'])->name('clientes.update');
 
+Route::post('discos/guardar', [ControllerDisco::class, 'store'])->name('discos.guardar');
+Route::get('discos/crear', [ControllerDisco::class, 'create'])->name('discos.crear');
+Route::delete('discos/{cod_disco}', [ControllerDisco::class, 'destroy'])->name('discos.eliminar');
+Route::get('discos/{cod_disco}', [ControllerDisco::class, 'show'])->name('discos.ver');
+Route::get('discos/{cod_disco}/editar', [ControllerDisco::class, 'edit'])->name('discos.editar');
+Route::post('discos/{cod_disco}', [ControllerDisco::class, 'update'])->name('discos.update');
+
+Route::post('rentas/guardar', [ControllerRenta::class, 'store'])->name('rentas.guardar');
+Route::get('rentas/crear', [ControllerRenta::class, 'create'])->name('rentas.crear');
+Route::delete('rentas/{cod_disco}', [ControllerRenta::class, 'destroy'])->name('rentas.eliminar');
+Route::get('rentas/{cod_disco}', [ControllerRenta::class, 'show'])->name('rentas.ver');
+Route::get('rentas/{cod_disco}/editar', [ControllerRenta::class, 'edit'])->name('rentas.editar');
+Route::post('rentas/{cod_disco}', [ControllerRenta::class, 'update'])->name('rentas.update');
 
 
 Route::get('sincronizacion', [ControllerSincro::class, 'index'])->name('sincronizacion');

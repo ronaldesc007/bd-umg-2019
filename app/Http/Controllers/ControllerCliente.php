@@ -166,12 +166,12 @@ class ControllerCliente extends Controller
      * @param  \App\ModelCliente  $modelCliente
      * @return \Illuminate\Http\Response
      */
-    public function destroy(ModelCliente $modelCliente)
+    public function destroy($codCliente)
     {
         //$this->roleRepository->deleteById($role->id);
 
         
-        $cliente = ModelActor::find($cod_actor);
+        $cliente = ModelCliente::find($codCliente);
         $cliente->isDeleted = 1;
         $cliente->save();
         
