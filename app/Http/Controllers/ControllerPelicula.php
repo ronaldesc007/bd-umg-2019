@@ -135,8 +135,17 @@ class ControllerPelicula extends Controller
         $pelicula = ModelPelicula::findOrFail($codPelicula);
         $pelicula->titulo = $request->titulo;
         $pelicula->categoria = $request->categoria;
-        $pelicula->isUpdated = 1;
-        $pelicula->isSynced = 0;
+        
+        // si la pelicula es nueva y ya se sincronizo se marca como update
+        if($pelicula->isSynced == 1){
+            $pelicula->isUpdated = 1;
+            $pelicula->isSynced = 0;
+        } // sino se deja como nuevo registro sin considerar los cambios intermedios.
+        else {
+            $pelicula->isUpdated = 0;
+            $pelicula->isSynced = 0;    
+        }
+            
         $pelicula->save();
 
         if (! $pelicula) {
