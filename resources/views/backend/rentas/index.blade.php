@@ -28,7 +28,9 @@
                             <th>FECHA DEVOLUCION</th>
                             <th>VALOR RENTA</th>
                             <th>CODIGO CLIENTE</th>
+                            <th>NOMBRE CLIENTE</th>
                             <th>CODIGO DISCO</th>
+                            <th>TITULO PELICULA</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -44,7 +46,9 @@
                                     </td>
                                     <td>{{ $renta->valor_renta}}</td>
                                     <td>{{ $renta->cliente_no_membresia}}</td>
+                                    <td>{{ $renta->nombre}}</td>
                                     <td>{{ $renta->disco_cod_disco }}</td>
+                                    <td>{{ $renta->titulo }}</td>
                                     <td>@include('backend.rentas.includes.actions', ['cod_renta' => $renta->cod_renta ])</td>
                                 </tr>
                             @endforeach

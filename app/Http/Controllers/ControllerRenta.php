@@ -20,7 +20,15 @@ class ControllerRenta extends Controller
     public function index()
     {
         //
-        $rentas = ModelRenta::where('isDeleted','<>',1)->orderBy('cod_renta','asc')->paginate();;
+        //$rentas = ModelRenta::where('isDeleted','<>',1)->orderBy('cod_renta','asc')->paginate();;
+        //return view('backend.rentas.index')->withRentas($rentas);
+        
+        $rentas = ModelRenta::select('renta.*' , 'cliente.nombre', 'pelicula.titulo')
+            ->join('cliente', 'cliente_no_membresia', '=', 'cliente.no_membresia')
+            ->join('disco', 'disco_cod_disco', '=', 'disco.cod_disco')
+            ->join('pelicula', 'disco.pelicula_cod_pelicula', '=', 'pelicula.cod_pelicula')
+            ->where('renta.isDeleted','<>',1)
+            ->orderBy('cod_renta','asc')->paginate();;
         return view('backend.rentas.index')->withRentas($rentas);
     }
 
