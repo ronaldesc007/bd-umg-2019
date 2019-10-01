@@ -25,7 +25,9 @@
                         <tr>
                             <th>CODIGO</th>
                             <th>CODIGO PELICULA</th>
+                            <th>TITULO PELICULA</th>
                             <th>CODIGO ACTOR</th>
+                            <th>NOMBRE ACTOR</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -36,7 +38,11 @@
                                     <td>
                                         {{ $reparto->pelicula_cod_pelicula }}
                                     </td>
+                                    <td>
+                                        {{ $reparto->titulo }}
+                                    </td>
                                     <td>{{ $reparto->actor_cod_actor }}</td>
+                                    <td>{{ $reparto->nombre }}</td>
                                     <td>@include('backend.repartos.includes.actions', ['cod_reparto' => $reparto->cod_reparto ])</td>
                                 </tr>
                             @endforeach

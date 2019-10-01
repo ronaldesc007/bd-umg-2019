@@ -19,7 +19,15 @@ class ControllerReparto extends Controller
     public function index()
     {
         //
-        $repartos = ModelReparto::where('isDeleted','<>',1)->orderBy('cod_reparto','asc')->paginate();;
+        //$repartos = ModelReparto::where('isDeleted','<>',1)->orderBy('cod_reparto','asc')->paginate();;
+        //return view('backend.repartos.index')->withRepartos($repartos);
+        
+        $repartos = ModelReparto::select('reparto.*', 'pelicula.titulo' , 'actor.nombre')
+            ->join('pelicula', 'pelicula_cod_pelicula', '=', 'pelicula.cod_pelicula')
+            ->join('actor', 'actor_cod_actor', '=', 'actor.cod_actor')
+            ->where('reparto.isDeleted','<>',1)
+            ->orderBy('cod_reparto','asc')
+            ->paginate();;
         return view('backend.repartos.index')->withRepartos($repartos);
     }
 
