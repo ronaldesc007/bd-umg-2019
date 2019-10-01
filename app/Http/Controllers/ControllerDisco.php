@@ -110,9 +110,13 @@ class ControllerDisco extends Controller
     {
         //
         $disco = ModelDisco::findOrFail($codDisco);
-   
+        
+        //se obtienen las peliculas validas y se envian al form en el return
+        $peliculas = ModelPelicula::where('isDeleted','<>',1)->get();
+        
         return view('backend.discos.edit')
-            ->withDisco($disco);
+            ->withDisco($disco)
+            ->withPeliculas($peliculas);
     }
 
     /**
