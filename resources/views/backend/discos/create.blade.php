@@ -19,12 +19,17 @@
                             <input type="text" name="no_copias" id="no_copias" class="form-control" placeholder="Ingrese el numero" value="{{old('no_copias')}}">
                         </div>
                     </div>
-                    <div class="form-row">
+                    <div class="form-row">    
                         <div class="form-group col-md-12">
-                            <label for="pelicula_cod_pelicula">Codigo pelicula:</label>
-                            <input type="text" name="pelicula_cod_pelicula" id="pelicula_cod_pelicula" class="form-control" placeholder="Ingrese el codigo" value="{{old('pelicula_cod_pelicula')}}">
+                          <label>Pelicula</label>
+                          <select name="pelicula_cod_pelicula" id="pelicula_cod_pelicula" class="form-control">
+                            <option selected disabled>Seleccione</option>
+                            @foreach ($peliculas->all() as $item)
+                              <option value="{{$item->cod_pelicula}}" {{ old('pelicula_cod_pelicula') == $item->cod_pelicula ? 'selected' : '' }}>{{$item->titulo}}</option>
+                            @endforeach 
+                          </select>
                         </div>
-                    </div>
+                    </div>    
                     <div class="form-row">
                         <div class="form-group col-md-12">
                             <label for="formato">Formato:</label>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\ModelDisco;
+use App\ModelPelicula;
 use Illuminate\Http\Request;
 use DB;
 use Redirect;
@@ -36,8 +37,9 @@ class ControllerDisco extends Controller
      */
     public function create()
     {
-        //
-        return view('backend.discos.create');
+        //se obtienen las peliculas validas y se envian al form en el return
+        $peliculas = ModelPelicula::where('isDeleted','<>',1)->get();
+        return view('backend.discos.create')->withPeliculas($peliculas);
     }
 
     /**
