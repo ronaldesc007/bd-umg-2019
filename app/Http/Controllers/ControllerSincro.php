@@ -8,6 +8,7 @@ use App\ModelActor;
 use App\ModelReparto;
 use App\ModelCliente;
 use App\ModelDisco;
+use App\ModelRenta;
 use Illuminate\Http\Request;
 use Log;
 use Session;
@@ -38,6 +39,7 @@ class ControllerSincro extends Controller
         $this->syncRepartos($motorbd,$motorbd2); 
         $this->syncClientes($motorbd,$motorbd2); 
         $this->syncDiscos($motorbd,$motorbd2); 
+        $this->syncRentas($motorbd,$motorbd2);
         
         DB::commit(); // Commit if no error
         
@@ -707,15 +709,15 @@ class ControllerSincro extends Controller
         $reparto_eliminado = ModelReparto::where('isDeleted','=',1)->get();
         Log::alert('Sincronizando Reparto Eliminado: '.$reparto_eliminado->count());
         
-        foreach($reparto_eliminado as $pdel) {
+        foreach($reparto_eliminado as $rdel) {
             
-            if ($repartos_bd2->contains('cod_reparto', '=', $pdel->cod_reparto)) {
-                Log::alert('Borrando Reparto de ambas BD: '.$pdel->cod_reparto);
-                DB::connection($motorbd2)->table('reparto')->where('cod_reparto','=',$pdel->cod_reparto)->delete(); 
-                DB::connection($motorbd)->table('reparto')->where('cod_reparto','=',$pdel->cod_reparto)->delete(); 
+            if ($repartos_bd2->contains('cod_reparto', '=', $rdel->cod_reparto)) {
+                Log::alert('Borrando Reparto de ambas BD: '.$rdel->cod_reparto);
+                DB::connection($motorbd2)->table('reparto')->where('cod_reparto','=',$rdel->cod_reparto)->delete(); 
+                DB::connection($motorbd)->table('reparto')->where('cod_reparto','=',$rdel->cod_reparto)->delete(); 
             } else {
-                Log::alert('Borrando solo de BD1: '.$pdel->cod_reparto);
-                DB::connection($motorbd)->table('reparto')->where('cod_reparto','=',$pdel->cod_reparto)->delete(); 
+                Log::alert('Borrando solo de BD1: '.$rdel->cod_reparto);
+                DB::connection($motorbd)->table('reparto')->where('cod_reparto','=',$rdel->cod_reparto)->delete(); 
             }        
             
         }  
@@ -1187,6 +1189,247 @@ class ControllerSincro extends Controller
         
     }
     
+    /**
+     * Actualizar las rentas.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    private function syncRentas($motorbd,$motorbd2)
+    {
+        
+        Log::alert('INICIANDO PROCESO DE SINCRONIZACION DE '.$motorbd.' A '.$motorbd2);
+        
+        $rentas_bd1 = DB::connection($motorbd)->table('renta')->where('isDeleted','<>',1)->get();
+        Log::alert('Rentas Activas en BD1 '.$motorbd.': '.$rentas_bd1->count());
+        
+        $rentas_bd2 = DB::connection($motorbd2)->table('renta')->where('isDeleted','<>',1)->get();
+        Log::alert('Rentas Activas en BD2 '.$motorbd2.': '.$rentas_bd2->count());
+        
+        // Rentas Nuevas
+        $rentas_nuevas = ModelRenta::where('isSynced','=',0)->where('isDeleted','=',0)->where('isUpdated','=',0)->get('cod_renta');
+        Log::alert('Sincronizando Rentas Nuevas: '.$rentas_nuevas->count());
+        
+        foreach($rentas_nuevas as $rnueva) {
+            
+            if ($rentas_bd2->contains('cod_renta', '=', $rnueva->cod_renta)) {
+                
+                Log::alert('El siguiente codigo de renta ya existe en BD2 : '.$rnueva->cod_renta .'');
+                
+                // buscando modelo en bd2
+                $rentabd2 = ModelRenta::on($motorbd2)->find($rnueva->cod_renta);
+                
+                // buscando modelo en bd1
+                $rentabd1 = ModelRenta::find($rnueva->cod_renta);
+                
+                // comparando modelo bd1 vs modelo bd2
+                if ($rentabd2->created_at >= $rentabd1->created_at ) {
+                        
+                    Log::alert('El registo en BD1 es mas antiguo, actualizando BD2 : '.$rnueva->cod_renta .'');
+                    
+                    // el registro en bd1 es mas antiguo, actualizando el registro en bd2 con los datos de bd1
+                    $rentabd2->fecha_renta = $rentabd1->fecha_renta;
+                    $rentabd2->fecha_devolucion = $rentabd1->fecha_devolucion;
+                    $rentabd2->valor_renta = $rentabd1->valor_renta;
+                    $rentabd2->cliente_no_membresia = $rentabd1->cliente_no_membresia;
+                    $rentabd2->disco_cod_disco = $rentabd1->cliente_no_membresia;
+                    
+                    
+                    //marcando ambos modelos como sincronizados
+                    $rentabd1->isSynced = 1;
+                    $rentabd2->isSynced = 1;
+
+                    // guardando los cambios
+                    $rentabd1->save();
+                    $rentabd2->save();
+                    
+                    if (!$rentabd1) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                    if (!$rentabd2) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                }
+                else {
+                    
+                    Log::alert('El registo en BD2 es mas antiguo, actualizando BD1 : '.$rnueva->cod_renta .'');
+                    // el registro en bd2 es mas antiguo, actualizando el registro en bd2 con los datos de bd1
+                    $rentabd1->fecha_renta = $rentabd2->fecha_renta;
+                    $rentabd1->fecha_devolucion = $rentabd2->fecha_devolucion;
+                    $rentabd1->valor_renta = $rentabd2->valor_renta;
+                    $rentabd1->cliente_no_membresia = $rentabd2->cliente_no_membresia;
+                    $rentabd1->disco_cod_disco = $rentabd2->disco_cod_disco;
+                    
+                    
+                    //marcando ambos modelos como sincronizados
+                    $rentabd1->isSynced = 1;
+                    $rentabd2->isSynced = 1;
+
+                    // guardando los cambios
+                    $rentabd1->save();
+                    $rentabd2->save();
+                    
+                    if (!$rentabd1) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                    if (!$rentabd2) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                }
+                    
+            } else {
+                Log::alert('La renta no existe, se agrega : '.$rnueva->cod_renta);
+                
+                // buscando la el modelo existente
+                $rentabd1 = ModelRenta::find($rnueva->cod_renta);
+                // creando una copia del modelo existente
+                $rentabd2 = $rentabd1->replicate();
+                // asignando el ID del modelo en bd2
+                $rentabd2->cod_renta = $rnueva->cod_renta;
+                // cambiando la conexion de bd
+                $rentabd2->setConnection($motorbd2);
+                
+                //marcando ambos modelos como sincronizados
+                $rentabd1->isSynced = 1;
+                $rentabd2->isSynced = 1;
+                
+                $rentabd1->save();
+                $rentabd2->save();
+                
+                if (!$rentabd2) {
+                    DB::rollback(); //Rollback Transaction
+                    return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                }
+                
+            }           
+            
+        } 
+        
+        // actualizando secuencia de Postgresql
+        if($motorbd=='mysql') {
+            $max = DB::table('renta')->max('cod_renta') + 1; 
+            DB::connection($motorbd2)->statement("ALTER SEQUENCE renta_cod_renta_seq RESTART WITH $max");
+        } 
+                
+        
+        // Rentas Actualizadas
+        $rentas_editadas = ModelRenta::where('isUpdated','=',1)->where('isSynced','=',0)->where('isDeleted','=',0)->get('cod_renta');
+        Log::alert('Sincronizando Rentas Editadas: '.$rentas_editadas->count());
+        
+        foreach($rentas_editadas as $reditada) {
+            
+            if ($rentas_bd2->contains('cod_renta', '=', $reditada->cod_renta)) {
+                
+                Log::alert('El siguiente codigo de renta ya existe en BD2 : '.$reditada->cod_renta .'');
+                
+                // buscando modelo en bd2
+                $rentabd2 = ModelRenta::on($motorbd2)->find($reditada->cod_renta);
+                
+                // buscando modelo en bd1
+                $rentabd1 = ModelRenta::find($reditada->cod_renta);
+                
+                // comparando modelo bd1 vs modelo bd2
+                if ($rentabd2->updated_at <= $rentabd1->updated_at ) {
+                        
+                    Log::alert('El registo en BD1 es mas reciente, actualizando BD2 : '.$reditada->cod_renta .'');
+                    
+                    // el registro en bd1 es mas reciente, actualizando el registro en bd2 con los datos de bd1
+                    $rentabd2->fecha_renta = $rentabd1->fecha_renta;
+                    $rentabd2->fecha_devolucion = $rentabd1->fecha_devolucion;
+                    $rentabd2->valor_renta = $rentabd1->valor_renta;
+                    $rentabd2->cliente_no_membresia = $rentabd1->cliente_no_membresia;
+                    $rentabd2->disco_cod_disco = $rentabd1->cliente_no_membresia;
+                    
+                    
+                    
+                    //marcando ambos modelos como sincronizados
+                    $rentabd1->isUpdated = 0;
+                    $rentabd1->isSynced = 1;
+                    $rentabd2->isUpdated = 0;
+                    $rentabd2->isSynced = 1;
+                    
+
+                    // guardando los cambios
+                    $rentabd1->save();
+                    $rentabd2->save();
+                    
+                    if (!$rentabd1) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                    if (!$rentabd2) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                }
+                else {
+                    
+                    Log::alert('El registo en BD2 es mas reciente, actualizando BD1 : '.$rnueva->cod_renta .'');
+                    // el registro en bd2 es mas reciente, actualizando el registro en bd2 con los datos de bd1
+                    $rentabd1->fecha_renta = $rentabd2->fecha_renta;
+                    $rentabd1->fecha_devolucion = $rentabd2->fecha_devolucion;
+                    $rentabd1->valor_renta = $rentabd2->valor_renta;
+                    $rentabd1->cliente_no_membresia = $rentabd2->cliente_no_membresia;
+                    $rentabd1->disco_cod_disco = $rentabd2->disco_cod_disco;
+                    
+                    //marcando ambos modelos como sincronizados
+                    $rentabd1->isUpdated = 0;
+                    $rentabd1->isSynced = 1;
+                    $rentabd2->isUpdated = 0;
+                    $rentabd2->isSynced = 1;
+                    
+                    // guardando los cambios
+                    $rentabd1->save();
+                    $rentabd2->save();
+                    
+                    if (!$rentabd1) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                    if (!$rentabd2) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                }
+                    
+            }
+            
+            
+        } 
+        
+        // Rentas Eliminadas
+        $rentas_eliminadas = ModelRenta::where('isDeleted','=',1)->get();
+        Log::alert('Sincronizando Rentas Eliminadas: '.$rentas_eliminadas->count());
+        
+        foreach($rentas_eliminadas as $rendel) {
+            
+            if ($rentas_bd2->contains('cod_renta', '=', $rendel->cod_renta)) {
+                Log::alert('Borrando Renta de ambas BD: '.$rendel->cod_renta);
+                DB::connection($motorbd2)->table('renta')->where('cod_renta','=',$rendel->cod_renta)->delete(); 
+                DB::connection($motorbd)->table('renta')->where('cod_renta','=',$rendel->cod_renta)->delete(); 
+            } else {
+                Log::alert('Borrando solo de BD1: '.$rendel->cod_renta);
+                DB::connection($motorbd)->table('renta')->where('cod_renta','=',$rendel->cod_renta)->delete(); 
+            }        
+            
+        }  
+        
+        Log::alert('Sincronizacion de Rentas Completa: '.$rentas_eliminadas->count());
+        
+        return true;
+        
+    }
     
     
     public function create()
