@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\ModelSincro;
 use App\ModelPelicula;
 use App\ModelActor;
+use App\ModelReparto;
 use App\ModelCliente;
 use App\ModelDisco;
 use Illuminate\Http\Request;
@@ -34,6 +35,7 @@ class ControllerSincro extends Controller
         
         $this->syncPeliculas($motorbd,$motorbd2); 
         $this->syncActores($motorbd,$motorbd2); 
+        $this->syncRepartos($motorbd,$motorbd2); 
         $this->syncClientes($motorbd,$motorbd2); 
         $this->syncDiscos($motorbd,$motorbd2); 
         
@@ -497,6 +499,233 @@ class ControllerSincro extends Controller
         return true;
         
     }
+    
+    /**
+     * Actualizar reparto.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    private function syncRepartos($motorbd,$motorbd2)
+    {
+        
+        Log::alert('INICIANDO PROCESO DE SINCRONIZACION DE '.$motorbd.' A '.$motorbd2);
+        
+        $repartos_bd1 = DB::connection($motorbd)->table('reparto')->where('isDeleted','<>',1)->get();
+        Log::alert('Reparto Activo en BD1 '.$motorbd.': '.$repartos_bd1->count());
+        
+        $repartos_bd2 = DB::connection($motorbd2)->table('reparto')->where('isDeleted','<>',1)->get();
+        Log::alert('Reparto Activo en BD2 '.$motorbd2.': '.$repartos_bd2->count());
+        
+        // Reparto Nuevo
+        $reparto_nuevo = ModelReparto::where('isSynced','=',0)->where('isDeleted','=',0)->where('isUpdated','=',0)->get('cod_reparto');
+        Log::alert('Sincronizando Reparto Nuevo: '.$reparto_nuevo->count());
+        
+        foreach($reparto_nuevo as $rnuevo) {
+            
+            if ($repartos_bd2->contains('cod_reparto', '=', $rnuevo->cod_reparto)) {
+                
+                Log::alert('El siguiente codigo de reparto ya existe en BD2 : '.$rnuevo->cod_reparto .'');
+                
+                // buscando modelo en bd2
+                $repartobd2 = ModelReparto::on($motorbd2)->find($rnuevo->cod_reparto);
+                
+                // buscando modelo en bd1
+                $repartobd1 = ModelReparto::find($rnuevo->cod_reparto);
+                
+                // comparando modelo bd1 vs modelo bd2
+                if ($repartobd2->created_at >= $repartobd1->created_at ) {
+                        
+                    Log::alert('El registo en BD1 es mas antiguo, actualizando BD2 : '.$rnuevo->cod_reparto .'');
+                    
+                    // el registro en bd1 es mas antiguo, actualizando el registro en bd2 con los datos de bd1
+                    $repartobd2->pelicula_cod_pelicula = $repartobd1->pelicula_cod_pelicula;
+                    $repartobd2->actor_cod_actor = $repartobd1->actor_cod_actor;
+                    
+                    //marcando ambos modelos como sincronizados
+                    $repartobd1->isSynced = 1;
+                    $repartobd2->isSynced = 1;
+
+                    // guardando los cambios
+                    $repartobd1->save();
+                    $repartobd2->save();
+                    
+                    if (!$repartobd1) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                    if (!$repartobd2) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                }
+                else {
+                    
+                    Log::alert('El registo en BD2 es mas antiguo, actualizando BD1 : '.$rnuevo->cod_reparto .'');
+                    // el registro en bd2 es mas antiguo, actualizando el registro en bd2 con los datos de bd1
+                    $repartobd1->pelicula_cod_pelicula = $repartobd2->pelicula_cod_pelicula;
+                    $repartobd1->actor_cod_actor = $repartobd2->actor_cod_actor;
+                    
+                    //marcando ambos modelos como sincronizados
+                    $repartobd1->isSynced = 1;
+                    $repartobd2->isSynced = 1;
+
+                    // guardando los cambios
+                    $repartobd1->save();
+                    $repartobd2->save();
+                    
+                    if (!$repartobd1) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                    if (!$repartobd2) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                }
+                    
+            } else {
+                Log::alert('El reparto no existe, se agrega : '.$rnuevo->cod_reparto);
+                
+                // buscando la el modelo existente
+                $repartobd1 = ModelReparto::find($rnuevo->cod_reparto);
+                // creando una copia del modelo existente
+                $repartobd2 = $repartobd1->replicate();
+                // asignando el ID del modelo en bd2
+                $repartobd2->cod_reparto = $rnuevo->cod_reparto;
+                // cambiando la conexion de bd
+                $repartobd2->setConnection($motorbd2);
+                
+                //marcando ambos modelos como sincronizados
+                $repartobd1->isSynced = 1;
+                $repartobd2->isSynced = 1;
+                
+                $repartobd1->save();
+                $repartobd2->save();
+                
+                if (!$repartobd2) {
+                    DB::rollback(); //Rollback Transaction
+                    return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                }
+                
+            }           
+            
+        } 
+        
+        // actualizando secuencia de Postgresql
+        if($motorbd=='mysql') {
+            $max = DB::table('reparto')->max('cod_reparto') + 1; 
+            DB::connection($motorbd2)->statement("ALTER SEQUENCE reparto_cod_reparto_seq RESTART WITH $max");
+        } 
+                
+        
+        // Reparto Actualizado
+        $reparto_editado = ModelReparto::where('isUpdated','=',1)->where('isSynced','=',0)->where('isDeleted','=',0)->get('cod_reparto');
+        Log::alert('Sincronizando Reparto Editado: '.$reparto_editado->count());
+        
+        foreach($reparto_editado as $reditado) {
+            
+            if ($repartos_bd2->contains('cod_reparto', '=', $reditado->cod_reparto)) {
+                
+                Log::alert('El siguiente codigo de reparto ya existe en BD2 : '.$reditado->cod_reparto .'');
+                
+                // buscando modelo en bd2
+                $repartobd2 = ModelReparto::on($motorbd2)->find($reditado->cod_reparto);
+                
+                // buscando modelo en bd1
+                $repartobd1 = ModelReparto::find($reditado->cod_reparto);
+                
+                // comparando modelo bd1 vs modelo bd2
+                if ($repartobd2->updated_at <= $repartobd1->updated_at ) {
+                        
+                    Log::alert('El registo en BD1 es mas reciente, actualizando BD2 : '.$reditado->cod_reparto .'');
+                    
+                    // el registro en bd1 es mas reciente, actualizando el registro en bd2 con los datos de bd1
+                    $repartobd2->titulo = $repartobd1->titulo;
+                    $repartobd2->categoria = $repartobd1->categoria;
+                    
+                    //marcando ambos modelos como sincronizados
+                    $repartobd1->isUpdated = 0;
+                    $repartobd1->isSynced = 1;
+                    $repartobd2->isUpdated = 0;
+                    $repartobd2->isSynced = 1;
+                    
+
+                    // guardando los cambios
+                    $repartobd1->save();
+                    $repartobd2->save();
+                    
+                    if (!$repartobd1) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                    if (!$repartobd2) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                }
+                else {
+                    
+                    Log::alert('El registo en BD2 es mas reciente, actualizando BD1 : '.$rnuevo->cod_reparto .'');
+                    // el registro en bd2 es mas reciente, actualizando el registro en bd2 con los datos de bd1
+                    $repartobd1->pelicula_cod_pelicula = $repartobd2->pelicula_cod_pelicula;
+                    $repartobd1->actor_cod_actor = $repartobd2->actor_cod_actor;
+                    
+                    //marcando ambos modelos como sincronizados
+                    $repartobd1->isUpdated = 0;
+                    $repartobd1->isSynced = 1;
+                    $repartobd2->isUpdated = 0;
+                    $repartobd2->isSynced = 1;
+                    
+                    // guardando los cambios
+                    $repartobd1->save();
+                    $repartobd2->save();
+                    
+                    if (!$repartobd1) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                    if (!$repartobd2) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                }
+                    
+            }
+            
+            
+        } 
+        
+        // Reparto Eliminado
+        $reparto_eliminado = ModelReparto::where('isDeleted','=',1)->get();
+        Log::alert('Sincronizando Reparto Eliminado: '.$reparto_eliminado->count());
+        
+        foreach($reparto_eliminado as $pdel) {
+            
+            if ($repartos_bd2->contains('cod_reparto', '=', $pdel->cod_reparto)) {
+                Log::alert('Borrando Reparto de ambas BD: '.$pdel->cod_reparto);
+                DB::connection($motorbd2)->table('reparto')->where('cod_reparto','=',$pdel->cod_reparto)->delete(); 
+                DB::connection($motorbd)->table('reparto')->where('cod_reparto','=',$pdel->cod_reparto)->delete(); 
+            } else {
+                Log::alert('Borrando solo de BD1: '.$pdel->cod_reparto);
+                DB::connection($motorbd)->table('reparto')->where('cod_reparto','=',$pdel->cod_reparto)->delete(); 
+            }        
+            
+        }  
+        
+        Log::alert('Sincronizacion de Reparto Completa: '.$reparto_eliminado->count());
+        
+        return true;
+        
+    }
+    
     
     /**
      * Actualizar los clientes.

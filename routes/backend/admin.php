@@ -18,7 +18,7 @@ Route::redirect('/', '/admin/dashboard', 301);
 Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('peliculas', [ControllerPelicula::class, 'index'])->name('peliculas');
 Route::get('actores', [ControllerActor::class, 'index'])->name('actores');
-Route::get('repartos', [ControllerActor::class, 'index'])->name('repartos');
+Route::get('repartos', [ControllerReparto::class, 'index'])->name('repartos');
 Route::get('clientes', [ControllerCliente::class, 'index'])->name('clientes');
 Route::get('discos', [ControllerDisco::class, 'index'])->name('discos');
 Route::get('rentas', [ControllerRenta::class, 'index'])->name('rentas');
@@ -39,10 +39,10 @@ Route::post('actores/{cod_actor}', [ControllerActor::class, 'update'])->name('ac
 
 Route::post('repartos/guardar', [ControllerReparto::class, 'store'])->name('repartos.guardar');
 Route::get('repartos/crear', [ControllerReparto::class, 'create'])->name('repartos.crear');
-Route::delete('repartos/{cod_actor}', [ControllerReparto::class, 'destroy'])->name('repartos.eliminar');
-Route::get('repartos/{cod_actor}', [ControllerReparto::class, 'show'])->name('repartos.ver');
-Route::get('repartos/{cod_actor}/editar', [ControllerReparto::class, 'edit'])->name('repartos.editar');
-Route::post('repartos/{cod_actor}', [ControllerReparto::class, 'update'])->name('repartos.update');
+Route::delete('repartos/{cod_reparto}', [ControllerReparto::class, 'destroy'])->name('repartos.eliminar');
+Route::get('repartos/{cod_reparto}', [ControllerReparto::class, 'show'])->name('repartos.ver');
+Route::get('repartos/{cod_reparto}/editar', [ControllerReparto::class, 'edit'])->name('repartos.editar');
+Route::post('repartos/{cod_reparto}', [ControllerReparto::class, 'update'])->name('repartos.update');
 
 Route::post('clientes/guardar', [ControllerCliente::class, 'store'])->name('clientes.guardar');
 Route::get('clientes/crear', [ControllerCliente::class, 'create'])->name('clientes.crear');

@@ -30,8 +30,8 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link {{
-                    active_class(Route::is('admin/peliculas'))
-                }}" href="{{ route('admin.peliculas') }}">
+                    active_class(Route::is('admin/repartos'))
+                }}" href="{{ route('admin.repartos') }}">
                     <i class="nav-icon fas fa-users"></i>
                     Reparto
                 </a>

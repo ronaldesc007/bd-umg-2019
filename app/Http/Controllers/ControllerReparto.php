@@ -20,7 +20,7 @@ class ControllerReparto extends Controller
     {
         //
         $repartos = ModelReparto::where('isDeleted','<>',1)->orderBy('cod_reparto','asc')->paginate();;
-        return view('backend.repartos.index')->withRepartos($reparto);
+        return view('backend.repartos.index')->withRepartos($repartos);
     }
 
     /**
@@ -31,6 +31,7 @@ class ControllerReparto extends Controller
     public function create()
     {
         //
+        return view('backend.repartos.create');
     }
 
     /**
@@ -43,8 +44,8 @@ class ControllerReparto extends Controller
     {
         // validate
         $rules = [
-            'titulo' => 'required|max:45',
-            'categoria' => 'required',
+            'cod_pelicula' => 'required|max:45',
+            'cod_actor' => 'required',
         ];
 
         $Input = $request->all();
@@ -61,8 +62,8 @@ class ControllerReparto extends Controller
 
         // store
         $new_reparto = new ModelReparto;
-        $new_reparto->titulo = $request->titulo;
-        $new_reparto->categoria = $request->categoria;
+        $new_reparto->pelicula_cod_pelicula = $request->cod_pelicula;
+        $new_reparto->actor_cod_actor = $request->cod_actor;
         $new_reparto->save();
 
         if (! $new_reparto) {
@@ -107,12 +108,12 @@ class ControllerReparto extends Controller
      * @param  \App\ModelReparto  $modelReparto
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, ModelReparto $modelReparto)
+    public function update(Request $request,  $codReparto)
     {
         // validate
         $rules = [
-            'titulo' => 'required|max:45',
-            'categoria' => 'required',
+            'cod_pelicula' => 'required',
+            'cod_actor' => 'required',
         ];
 
         $Input = $request->all();
@@ -129,8 +130,8 @@ class ControllerReparto extends Controller
 
         // store
         $reparto = ModelReparto::findOrFail($codReparto);
-        $reparto->titulo = $request->titulo;
-        $reparto->categoria = $request->categoria;
+        $reparto->pelicula_cod_pelicula = $request->cod_pelicula;
+        $reparto->actor_cod_actor = $request->cod_actor;
         $reparto->isUpdated = 1;
         $reparto->isSynced = 0;
         $reparto->save();
@@ -154,7 +155,7 @@ class ControllerReparto extends Controller
      * @param  \App\ModelReparto  $modelReparto
      * @return \Illuminate\Http\Response
      */
-    public function destroy(ModelReparto $modelReparto)
+    public function destroy( $cod_reparto)
     {
         //$this->roleRepository->deleteById($role->id);
 
