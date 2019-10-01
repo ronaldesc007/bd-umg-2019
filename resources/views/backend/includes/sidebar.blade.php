@@ -38,8 +38,8 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link {{
-                    active_class(Route::is('admin/peliculas'))
-                }}" href="{{ route('admin.peliculas') }}">
+                    active_class(Route::is('admin/clientes'))
+                }}" href="{{ route('admin.clientes') }}">
                     <i class="nav-icon fas fa-id-card-alt"></i>
                    Cliente
                 </a>
