@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\ModelSincro;
 use App\ModelPelicula;
+use App\ModelActor;
 use Illuminate\Http\Request;
 use Log;
 use Session;
@@ -30,7 +31,7 @@ class ControllerSincro extends Controller
         DB::beginTransaction();
         
         $this->syncPeliculas($motorbd,$motorbd2); 
-        $this->syncActore($motorbd,$motorbd2); 
+        $this->syncActores($motorbd,$motorbd2); 
         
         DB::commit(); // Commit if no error
         
@@ -275,7 +276,7 @@ class ControllerSincro extends Controller
     private function syncActores($motorbd,$motorbd2)
     {
         
-        Log::alert('INICIANDO PROCESO DE SINCRONIZACION DE '.$motorbd.' A '.$motorbd2);
+        Log::alert('INICIANDO PROCESO DE SINCRONIZACION DE ACTORES '.$motorbd.' A '.$motorbd2);
         
         $actores_bd1 = DB::connection($motorbd)->table('actor')->where('isDeleted','<>',1)->get();
         Log::alert('Actores Activos en BD1 '.$motorbd.': '.$actores_bd1->count());
