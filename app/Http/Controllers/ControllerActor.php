@@ -136,8 +136,17 @@ class ControllerActor extends Controller
         $actor = ModelActor::findOrFail($codActor);
         $actor->nombre = $request->nombre;
         $actor->fecha_nacimiento = $request->fecha_nacimiento;
-        $actor->isUpdated = 1;
-        $actor->isSynced = 0;
+        
+        // si la pelicula es nueva y ya se sincronizo se marca como update
+        if($actor->isSynced == 1){
+            $actor->isUpdated = 1;
+            $actor->isSynced = 0;
+        } // sino se deja como nuevo registro sin considerar los cambios intermedios.
+        else {
+            $actor->isUpdated = 0;
+            $actor->isSynced = 0;    
+        }
+        
         $actor->save();
 
         if (! $actor) {

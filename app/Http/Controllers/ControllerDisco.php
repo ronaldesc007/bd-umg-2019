@@ -152,8 +152,17 @@ class ControllerDisco extends Controller
         $disco->no_copias = $request->no_copias;
         $disco->pelicula_cod_pelicula = $request->pelicula_cod_pelicula;
         $disco->formato = $request->formato;
-        $disco->isUpdated = 1;
-        $disco->isSynced = 0;
+        
+        // si la pelicula es nueva y ya se sincronizo se marca como update
+        if($disco->isSynced == 1){
+            $disco->isUpdated = 1;
+            $disco->isSynced = 0;
+        } // sino se deja como nuevo registro sin considerar los cambios intermedios.
+        else {
+            $disco->isUpdated = 0;
+            $disco->isSynced = 0;    
+        }
+        
         $disco->save();
 
         if (! $disco) {

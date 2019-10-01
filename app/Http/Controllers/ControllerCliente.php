@@ -144,8 +144,17 @@ class ControllerCliente extends Controller
         $cliente->apellido = $request->apellido;
         $cliente->direccion = $request->direccion;
         $cliente->telefono = $request->telefono;
-        $cliente->isUpdated = 1;
-        $cliente->isSynced = 0;
+        
+        // si la pelicula es nueva y ya se sincronizo se marca como update
+        if($cliente->isSynced == 1){
+            $cliente->isUpdated = 1;
+            $cliente->isSynced = 0;
+        } // sino se deja como nuevo registro sin considerar los cambios intermedios.
+        else {
+            $cliente->isUpdated = 0;
+            $cliente->isSynced = 0;    
+        }
+        
         $cliente->save();
 
         if (! $cliente) {
