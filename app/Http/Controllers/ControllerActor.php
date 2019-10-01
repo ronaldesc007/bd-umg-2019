@@ -137,7 +137,7 @@ class ControllerActor extends Controller
         $actor->nombre = $request->nombre;
         $actor->fecha_nacimiento = $request->fecha_nacimiento;
         $actor->isUpdated = 1;
-        $actor->isSynced = o;
+        $actor->isSynced = 0;
         $actor->save();
 
         if (! $actor) {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\ModelSincro;
 use App\ModelPelicula;
 use App\ModelActor;
+use App\ModelCliente;
 use Illuminate\Http\Request;
 use Log;
 use Session;
@@ -32,6 +33,7 @@ class ControllerSincro extends Controller
         
         $this->syncPeliculas($motorbd,$motorbd2); 
         $this->syncActores($motorbd,$motorbd2); 
+        $this->syncClientes($motorbd,$motorbd2); 
         
         DB::commit(); // Commit if no error
         
@@ -356,10 +358,10 @@ class ControllerSincro extends Controller
                 }
                     
             } else {
-                Log::alert('La pelicula no existe, se agrega : '.$anuevo->cod_actor);
+                Log::alert('El actor no existe, se agrega : '.$anuevo->cod_actor);
                 
                 // buscando la el modelo existente
-                $actorbd1 = ModelPelicula::find($anuevo->cod_actor);
+                $actorbd1 = ModelActor::find($anuevo->cod_actor);
                 // creando una copia del modelo existente
                 $actorbd2 = $actorbd1->replicate();
                 // asignando el ID del modelo en bd2
@@ -396,7 +398,7 @@ class ControllerSincro extends Controller
         
         foreach($actores_editados as $aeditado) {
             
-            if ($actorbd2->contains('cod_actor', '=', $aeditado->cod_actor)) {
+            if ($actores_bd2->contains('cod_actor', '=', $aeditado->cod_actor)) {
                 
                 Log::alert('El siguiente codigo de actor ya existe en BD2 : '.$aeditado->cod_actor .'');
                 
@@ -412,8 +414,8 @@ class ControllerSincro extends Controller
                     Log::alert('El registo en BD1 es mas reciente, actualizando BD2 : '.$aeditado->cod_actor .'');
                     
                     // el registro en bd1 es mas reciente, actualizando el registro en bd2 con los datos de bd1
-                    $actorbd2->titulo = $actorbd1->titulo;
-                    $actorbd2->categoria = $actorbd1->categoria;
+                    $actorbd2->nombre = $actorbd1->nombre;
+                    $actorbd2->fecha_nacimiento = $actorbd1->fecha_nacimiento;
                     
                     //marcando ambos modelos como sincronizados
                     $actorbd1->isUpdated = 0;
@@ -477,7 +479,7 @@ class ControllerSincro extends Controller
         
         foreach($actores_eliminados as $adel) {
             
-            if ($actorbd2->contains('cod_actor', '=', $adel->cod_actor)) {
+            if ($actores_bd2->contains('cod_actor', '=', $adel->cod_actor)) {
                 Log::alert('Borrando Actor de ambas BD: '.$adel->cod_actor);
                 DB::connection($motorbd2)->table('actor')->where('cod_actor','=',$adel->cod_actor)->delete(); 
                 DB::connection($motorbd)->table('actor')->where('cod_actor','=',$adel->cod_actor)->delete(); 
@@ -493,11 +495,237 @@ class ControllerSincro extends Controller
         return true;
         
     }
+    
     /**
-     * Show the form for creating a new resource.
+     * Actualizar los clientes.
      *
      * @return \Illuminate\Http\Response
      */
+    private function syncClientes($motorbd,$motorbd2)
+    {
+        
+        Log::alert('INICIANDO PROCESO DE SINCRONIZACION DE '.$motorbd.' A '.$motorbd2);
+        
+        $clientes_bd1 = DB::connection($motorbd)->table('cliente')->where('isDeleted','<>',1)->get();
+        Log::alert('Clientes Activos en BD1 '.$motorbd.': '.$clientes_bd1->count());
+        
+        $clientes_bd2 = DB::connection($motorbd2)->table('cliente')->where('isDeleted','<>',1)->get();
+        Log::alert('Clientes Activos en BD2 '.$motorbd2.': '.$clientes_bd2->count());
+        
+        // Clientes Nuevos
+        $clientes_nuevos = ModelCliente::where('isSynced','=',0)->where('isDeleted','=',0)->where('isUpdated','=',0)->get('no_membresia');
+        Log::alert('Sincronizando Clientes Nuevos: '.$clientes_nuevos->count());
+        
+        foreach($clientes_nuevos as $cnuevo) {
+            
+            if ($clientes_bd2->contains('no_membresia', '=', $cnuevo->no_membresia)) {
+                
+                Log::alert('La siguiente mebresia de cliente ya existe en BD2 : '.$cnuevo->no_membresia .'');
+                
+                // buscando modelo en bd2
+                $clientebd2 = ModelCliente::on($motorbd2)->find($cnuevo->no_membresia);
+                
+                // buscando modelo en bd1
+                $clientebd1 = ModelCliente::find($cnuevo->no_membresia);
+                
+                // comparando modelo bd1 vs modelo bd2
+                if ($clientebd2->created_at >= $clientebd1->created_at ) {
+                        
+                    Log::alert('El registo en BD1 es mas antiguo, actualizando BD2 : '.$cnuevo->no_membresia .'');
+                    
+                    // el registro en bd1 es mas antiguo, actualizando el registro en bd2 con los datos de bd1
+                    $clientebd2->nombre = $clientebd1->nombre;
+                    $clientebd2->apellido = $clientebd1->apellido;
+                    $clientebd2->direccion = $clientebd1->direccion;
+                    $clientebd2->telefono = $clientebd1->telefono;
+                    
+                    //marcando ambos modelos como sincronizados
+                    $clientebd1->isSynced = 1;
+                    $clientebd2->isSynced = 1;
+
+                    // guardando los cambios
+                    $clientebd1->save();
+                    $clientebd2->save();
+                    
+                    if (!$clientebd1) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                    if (!$clientebd2) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                }
+                else {
+                    
+                    Log::alert('El registo en BD2 es mas antiguo, actualizando BD1 : '.$cnuevo->no_membresia .'');
+                    // el registro en bd2 es mas antiguo, actualizando el registro en bd2 con los datos de bd1
+                    $clientebd1->nombre = $clientebd2->nombre;
+                    $clientebd1->apellido = $clientebd2->apellido;
+                    $clientebd1->direccion = $clientebd2->direccion;
+                    $clientebd1->telefono = $clientebd2->telefono;
+                    
+                    //marcando ambos modelos como sincronizados
+                    $clientebd1->isSynced = 1;
+                    $clientebd2->isSynced = 1;
+
+                    // guardando los cambios
+                    $clientebd1->save();
+                    $clientebd2->save();
+                    
+                    if (!$clientebd1) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                    if (!$clientebd2) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                }
+                    
+            } else {
+                Log::alert('El cliente no existe, se agrega : '.$cnuevo->no_membresia);
+                
+                // buscando la el modelo existente
+                $clientebd1 = ModelCliente::find($cnuevo->no_membresia);
+                // creando una copia del modelo existente
+                $clientebd2 = $clientebd1->replicate();
+                // asignando el ID del modelo en bd2
+                $clientebd2->no_membresia = $cnuevo->no_membresia;
+                // cambiando la conexion de bd
+                $clientebd2->setConnection($motorbd2);
+                
+                //marcando ambos modelos como sincronizados
+                $clientebd1->isSynced = 1;
+                $clientebd2->isSynced = 1;
+                
+                $clientebd1->save();
+                $clientebd2->save();
+                
+                if (!$clientebd2) {
+                    DB::rollback(); //Rollback Transaction
+                    return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                }
+                
+            }           
+            
+        } 
+        
+        // actualizando secuencia de Postgresql
+        if($motorbd=='mysql') {
+            $max = DB::table('cliente')->max('no_membresia') + 1; 
+            DB::connection($motorbd2)->statement("ALTER SEQUENCE cliente_no_membresia_seq RESTART WITH $max");
+        } 
+                
+        
+        // Clientes Actualizados
+        $clientes_editados = ModelCliente::where('isUpdated','=',1)->where('isSynced','=',0)->where('isDeleted','=',0)->get('no_membresia');
+        Log::alert('Sincronizando Clientes Actualizados: '.$clientes_editados->count());
+        
+        foreach($clientes_editados as $ceditado) {
+            
+            if ($clientes_bd2->contains('no_membresia', '=', $ceditado->no_membresia)) {
+                
+                Log::alert('La siguiente mebresia de cliente ya existe en BD2 : '.$ceditado->no_membresia .'');
+                
+                // buscando modelo en bd2
+                $clientebd2 = ModelCliente::on($motorbd2)->find($ceditado->no_membresia);
+                
+                // buscando modelo en bd1
+                $clientebd1 = ModelCliente::find($ceditado->no_membresia);
+                
+                // comparando modelo bd1 vs modelo bd2
+                if ($clientebd2->updated_at <= $clientebd1->updated_at ) {
+                        
+                    Log::alert('El registo en BD1 es mas reciente, actualizando BD2 : '.$ceditado->no_membresia .'');
+                    
+                    // el registro en bd1 es mas reciente, actualizando el registro en bd2 con los datos de bd1
+                    $clientebd2->titulo = $clientebd1->titulo;
+                    $clientebd2->categoria = $clientebd1->categoria;
+                    
+                    //marcando ambos modelos como sincronizados
+                    $clientebd1->isUpdated = 0;
+                    $clientebd1->isSynced = 1;
+                    $clientebd2->isUpdated = 0;
+                    $clientebd2->isSynced = 1;
+                    
+
+                    // guardando los cambios
+                    $clientebd1->save();
+                    $clientebd2->save();
+                    
+                    if (!$clientebd1) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                    if (!$clientebd2) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                }
+                else {
+                    
+                    Log::alert('El registo en BD2 es mas reciente, actualizando BD1 : '.$cnuevo->no_membresia .'');
+                    // el registro en bd2 es mas reciente, actualizando el registro en bd2 con los datos de bd1
+                    $clientebd1->titulo = $clientebd2->titulo;
+                    $clientebd1->categoria = $clientebd2->categoria;
+                    
+                    //marcando ambos modelos como sincronizados
+                    $clientebd1->isUpdated = 0;
+                    $clientebd1->isSynced = 1;
+                    $clientebd2->isUpdated = 0;
+                    $clientebd2->isSynced = 1;
+                    
+                    // guardando los cambios
+                    $clientebd1->save();
+                    $clientebd2->save();
+                    
+                    if (!$clientebd1) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                    if (!$clientebd2) {
+                        DB::rollback(); //Rollback Transaction
+                        return Redirect::back()->withInput()->withFlashDanger('DB::Error');
+                    }
+                    
+                }
+                    
+            }
+            
+            
+        } 
+        
+        // Clientes Eliminados
+        $clientes_eliminados = ModelCliente::where('isDeleted','=',1)->get();
+        Log::alert('Sincronizando Clientes Eliminados: '.$clientes_eliminados->count());
+        
+        foreach($clientes_eliminados as $cdel) {
+            
+            if ($clientes_bd2->contains('no_membresia', '=', $cdel->no_membresia)) {
+                Log::alert('Borrando Cliente de ambas BD: '.$cdel->no_membresia);
+                DB::connection($motorbd2)->table('cliente')->where('no_membresia','=',$cdel->no_membresia)->delete(); 
+                DB::connection($motorbd)->table('cliente')->where('no_membresia','=',$cdel->no_membresia)->delete(); 
+            } else {
+                Log::alert('Borrando solo de BD1: '.$cdel->no_membresia);
+                DB::connection($motorbd)->table('cliente')->where('no_membresia','=',$cdel->no_membresia)->delete(); 
+            }        
+            
+        }  
+        
+        Log::alert('Sincronizacion de Clientes Completa: '.$clientes_eliminados->count());
+        
+        return true;
+        
+    }
+    
     public function create()
     {
         //
