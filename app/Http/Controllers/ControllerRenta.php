@@ -151,6 +151,7 @@ class ControllerRenta extends Controller
         $renta->cliente_no_membresia = $request->cod_cliente;
         $renta->disco_cod_disco = $request->cod_disco;
         $renta->isUpdated = 1;
+        $renta->isSynced = 0;
         $renta->save();
 
         if (! $renta) {
@@ -172,7 +173,7 @@ class ControllerRenta extends Controller
      * @param  \App\ModelRenta  $modelRenta
      * @return \Illuminate\Http\Response
      */
-    public function destroy(ModelRenta $modelRenta)
+    public function destroy( $cod_renta)
     {
         //
         $renta = ModelRenta::find($cod_renta);

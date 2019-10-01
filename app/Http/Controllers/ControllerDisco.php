@@ -141,6 +141,7 @@ class ControllerDisco extends Controller
         $disco->pelicula_cod_pelicula = $request->pelicula_cod_pelicula;
         $disco->formato = $request->formato;
         $disco->isUpdated = 1;
+        $disco->isSynced = 0;
         $disco->save();
 
         if (! $disco) {

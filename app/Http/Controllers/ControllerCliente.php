@@ -145,6 +145,7 @@ class ControllerCliente extends Controller
         $cliente->direccion = $request->direccion;
         $cliente->telefono = $request->telefono;
         $cliente->isUpdated = 1;
+        $cliente->isSynced = 0;
         $cliente->save();
 
         if (! $cliente) {

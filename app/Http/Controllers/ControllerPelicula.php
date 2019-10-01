@@ -136,6 +136,7 @@ class ControllerPelicula extends Controller
         $pelicula->titulo = $request->titulo;
         $pelicula->categoria = $request->categoria;
         $pelicula->isUpdated = 1;
+        $pelicula->isSynced = 0;
         $pelicula->save();
 
         if (! $pelicula) {
