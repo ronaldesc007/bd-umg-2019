@@ -158,8 +158,17 @@ class ControllerRenta extends Controller
         $renta->valor_renta = $request->valor_renta;
         $renta->cliente_no_membresia = $request->cod_cliente;
         $renta->disco_cod_disco = $request->cod_disco;
-        $renta->isUpdated = 1;
-        $renta->isSynced = 0;
+        
+        // si la pelicula es nueva y ya se sincronizo se marca como update
+        if($renta->isSynced == 1){
+            $renta->isUpdated = 1;
+            $renta->isSynced = 0;
+        } // sino se deja como nuevo registro sin considerar los cambios intermedios.
+        else {
+            $renta->isUpdated = 0;
+            $renta->isSynced = 0;    
+        }
+        
         $renta->save();
 
         if (! $renta) {

@@ -155,8 +155,17 @@ class ControllerReparto extends Controller
         $reparto = ModelReparto::findOrFail($codReparto);
         $reparto->pelicula_cod_pelicula = $request->cod_pelicula;
         $reparto->actor_cod_actor = $request->cod_actor;
-        $reparto->isUpdated = 1;
-        $reparto->isSynced = 0;
+        
+        // si la pelicula es nueva y ya se sincronizo se marca como update
+        if($reparto->isSynced == 1){
+            $reparto->isUpdated = 1;
+            $reparto->isSynced = 0;
+        } // sino se deja como nuevo registro sin considerar los cambios intermedios.
+        else {
+            $reparto->isUpdated = 0;
+            $reparto->isSynced = 0;    
+        }
+        
         $reparto->save();
 
         if (! $reparto) {
