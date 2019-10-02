@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\ModelReparto;
+use App\ModelPelicula;
+use App\ModelActor;
 use Illuminate\Http\Request;
 use DB;
 use Redirect;
@@ -38,8 +40,12 @@ class ControllerReparto extends Controller
      */
     public function create()
     {
-        //
-        return view('backend.repartos.create');
+        //se obtienen las peliculas validas y se envian al form en el return
+        $peliculas = ModelPelicula::where('isDeleted','<>',1)->get();        
+        $actores = ModelActor::where('isDeleted','<>',1)->get();        
+        return view('backend.repartos.create')
+            ->withPeliculas($peliculas)
+            ->withActores($actores);
     }
 
     /**
@@ -104,9 +110,18 @@ class ControllerReparto extends Controller
      * @param  \App\ModelReparto  $modelReparto
      * @return \Illuminate\Http\Response
      */
-    public function edit(ModelReparto $modelReparto)
+    public function edit($codReparto)
     {
         //
+        $reparto = ModelReparto::findOrFail($codReparto);
+        
+        //se obtienen las peliculas validas y se envian al form en el return
+        $peliculas = ModelPelicula::where('isDeleted','<>',1)->get();
+        $actores = ModelActor::where('isDeleted','<>',1)->get();   
+        return view('backend.repartos.edit')
+            ->withReparto($reparto)
+            ->withPeliculas($peliculas)
+            ->withActores($actores);
     }
 
     /**

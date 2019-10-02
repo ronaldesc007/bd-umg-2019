@@ -16,13 +16,23 @@
                     <div class="form-row">
                         <div class="form-group col-md-12">
                             <label for="cod_pelicula">Codigo pelicula:</label>
-                            <input type="text" name="cod_pelicula" id="cod_pelicula" class="form-control" placeholder="Ingrese el codigo" value="{{old('cod_pelicula')}}">
+                            <select name="cod_pelicula" id="cod_pelicula" class="form-control">
+                                <option selected disabled>Seleccione</option>
+                                @foreach ($peliculas->all() as $item)
+                                  <option value="{{$item->cod_pelicula}}" {{ old('cod_pelicula') == $item->cod_pelicula ? 'selected' : '' }}>{{$item->cod_pelicula}} - {{$item->titulo}}</option>
+                                @endforeach 
+                              </select>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group col-md-12">
                             <label for="cod_actor">Codigo actor:</label>
-                            <input type="text" name="cod_actor" id="cod_actor" class="form-control" placeholder="Ingrese el codigo" value="{{old('cod_actor')}}">
+                            <select name="cod_actor" id="cod_actor" class="form-control">
+                                <option selected disabled>Seleccione</option>
+                                @foreach ($actores->all() as $item)
+                                  <option value="{{$item->cod_actor}}" {{ old('cod_actor') == $item->cod_actor ? 'selected' : '' }}>{{$item->cod_actor}} - {{$item->nombre}}</option>
+                                @endforeach 
+                              </select>
                         </div>
                     </div>
             
